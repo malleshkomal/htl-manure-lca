@@ -1,0 +1,406 @@
+<title>HTL Plant in Motion</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one wide process diagram that runs by itself, a story bar under it that walks
+   through the seven steps, and a carbon-footprint bar that fills as the steps play. */
+:root {
+  --paper: #f4f6f3; --sheet: #ffffff; --ink: #17201b; --ink-2: #4c5650; --ink-3: #78817b;
+  --rule: #dfe4df; --pipe: #e4e8e3; --accent: #1f6f5c;
+  --manure: #8a6d4b; --water: #1baf7a; --biocrude: #2a78d6; --gas: #9ea39b; --solids: #eda100;
+  --offgas: #6250d6; --heat: #eb6834; --elec: #eb6834; --truck: #1baf7a; --treat: #6250d6;
+  --vessel: #f7f9f6; --vessel-line: #17201b;
+  --display: "Newsreader", Georgia, serif;
+  --sans: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #121614; --sheet: #1a201d; --ink: #e9eeea; --ink-2: #aeb7b1; --ink-3: #828b85; --rule: #2b332f; --pipe: #29312d;
+    --accent: #5cc4a6; --manure: #b08b62; --water: #199e70; --biocrude: #3987e5; --gas: #7d847f; --solids: #c98500;
+    --offgas: #9085e9; --heat: #d95926; --elec: #d95926; --truck: #199e70; --treat: #9085e9; --vessel: #20272a; --vessel-line: #c9d1cc;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #121614; --sheet: #1a201d; --ink: #e9eeea; --ink-2: #aeb7b1; --ink-3: #828b85; --rule: #2b332f; --pipe: #29312d;
+  --accent: #5cc4a6; --manure: #b08b62; --water: #199e70; --biocrude: #3987e5; --gas: #7d847f; --solids: #c98500;
+  --offgas: #9085e9; --heat: #d95926; --elec: #d95926; --truck: #199e70; --treat: #9085e9; --vessel: #20272a; --vessel-line: #c9d1cc;
+}
+body { background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 76rem; margin-inline: auto; padding-block: 40px 56px; display: grid; gap: 22px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap > * { min-width: 0; }
+.kicker { font: 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(30px, 4.6vw, 46px); line-height: 1.08; text-wrap: balance; }
+.lede { margin: 0; max-width: 64ch; color: var(--ink-2); font-size: 17px; }
+.bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.seg { display: inline-flex; flex-wrap: wrap; gap: 3px; padding: 3px; background: var(--sheet); border: 1px solid var(--rule); border-radius: 18px; }
+.seg button, .play { font: 500 13px/1 var(--sans); color: var(--ink-2); background: transparent; border: 0; border-radius: 999px; padding: 8px 12px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.play { background: var(--ink); color: var(--paper); display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.stage-card { background: var(--sheet); border: 1px solid var(--rule); border-radius: 12px; padding: 14px; }
+.scroll { overflow-x: auto; }
+svg.plant { display: block; width: 100%; min-width: 760px; height: auto; color: var(--ink); }
+svg.plant text { font-family: var(--sans); fill: var(--ink); }
+.lbl { font-size: 13px; font-weight: 600; }
+.sub { font-size: 11.5px; fill: var(--ink-2) !important; }
+.num { font-family: var(--mono) !important; font-size: 11.5px; fill: var(--ink-2) !important; }
+.pipe { fill: none; stroke: var(--pipe); stroke-linecap: round; stroke-linejoin: round; }
+.flowline { fill: none; stroke-linecap: round; stroke-linejoin: round; opacity: .28; }
+.vessel { fill: var(--vessel); stroke: var(--vessel-line); stroke-width: 1.6; }
+.node { transition: opacity .4s; }
+.dimmed .node:not(.on) { opacity: .35; }
+.node.on .vessel, .node.on .box { stroke: var(--accent); stroke-width: 2.6; }
+.box { fill: var(--sheet); stroke: var(--rule); stroke-width: 1.2; }
+.glow { fill: var(--heat); opacity: .18; }
+@media (prefers-reduced-motion: no-preference) { .glow { animation: glow 2.4s ease-in-out infinite; } }
+@keyframes glow { 50% { opacity: .42; } }
+.story { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.steps { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.steps button { font: 500 12.5px/1 var(--sans); color: var(--ink-2); background: var(--sheet); border: 1px solid var(--rule); border-radius: 999px; padding: 7px 11px; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.steps button span { font-family: var(--mono); color: var(--ink-3); }
+.steps button[aria-current="step"] { border-color: var(--accent); color: var(--ink); box-shadow: inset 0 0 0 1px var(--accent); }
+.caption { display: grid; gap: 4px; min-height: 5.2em; }
+.caption h2 { margin: 0; font-family: var(--display); font-weight: 500; font-size: 24px; }
+.caption p { margin: 0; color: var(--ink-2); max-width: 70ch; }
+.progress { height: 3px; background: var(--rule); border-radius: 2px; overflow: hidden; }
+.progress i { display: block; height: 100%; width: 0; background: var(--accent); }
+.co2 { display: grid; gap: 10px; }
+.co2-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 16px; }
+.co2-top h3 { margin: 0; font-size: 15px; }
+.co2-total { font-family: var(--display); font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums; }
+.co2-total small { font-family: var(--sans); font-size: 14px; color: var(--ink-2); margin-left: 4px; }
+.track { position: relative; height: 26px; background: var(--paper); border: 1px solid var(--rule); border-radius: 7px; overflow: hidden; display: flex; }
+.track span { height: 100%; width: 0; transition: width .9s cubic-bezier(.2, .7, .2, 1); border-right: 2px solid var(--sheet); }
+.track span:last-child { border-right: 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; list-style: none; margin: 0; padding: 0; font-size: 12.5px; color: var(--ink-2); }
+.legend li { display: inline-flex; align-items: center; gap: 6px; }
+.legend b { font: 500 12px var(--mono); color: var(--ink); }
+.sw { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.foot { font-size: 13px; color: var(--ink-2); border-top: 1px solid var(--rule); padding-top: 14px; }
+.foot a { color: var(--accent); }
+</style>
+
+<div class="wrap">
+  <header style="display:grid;gap:10px">
+    <div class="kicker">Master thesis · K. M. Chougule · TU Bergakademie Freiberg</div>
+    <h1>Inside the plant: cattle manure to biocrude</h1>
+    <p class="lede">A 2,000 t/day hydrothermal liquefaction plant, animated from the Aspen Plus mass balance. Pipe width and particle density follow the real mass flows. Underneath, the carbon footprint of one kilogram of bio-oil builds up step by step.</p>
+  </header>
+
+  <div class="bar">
+    <div class="controls">
+      <button type="button" class="play" id="play" aria-label="Pause animation">❚❚ Pause</button>
+      <div class="seg" role="group" aria-label="Water treatment">
+        <button type="button" id="case-case1" aria-pressed="true">Case 1 · HTL</button>
+        <button type="button" id="case-case2" aria-pressed="false">Case 2 · + gasification</button>
+        <button type="button" id="case-case3" aria-pressed="false">Case 3 · + distillation</button>
+      </div>
+      <div class="seg" role="group" aria-label="Electricity">
+        <button type="button" id="el-wind" aria-pressed="true">Wind power</button>
+        <button type="button" id="el-grid" aria-pressed="false">German grid</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stage-card">
+    <div class="scroll">
+      <svg class="plant" id="plant" viewBox="0 0 1200 590" role="img" aria-label="Animated process diagram: wet cattle manure is trucked to the plant, mixed with water into a slurry, pumped to 100 bar, liquefied at 350 °C, and separated into biocrude, gas, solids and an aqueous phase, which cases 2 and 3 clean into reusable water.">
+        <defs>
+          <marker id="tip" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker>
+          <linearGradient id="hot" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="var(--heat)" stop-opacity=".55"/><stop offset="1" stop-color="var(--heat)" stop-opacity="0"/></linearGradient>
+        </defs>
+        <g id="pipes"></g>
+        <g id="particles"></g>
+
+        <!-- farm -->
+        <g class="node" data-step="1">
+          <rect class="box" x="24" y="258" width="114" height="84" rx="10"/>
+          <path d="M65 286 L81 272 L97 286 Z" fill="var(--manure)" opacity=".8"/>
+          <rect x="69" y="286" width="24" height="16" fill="var(--manure)" opacity=".55"/>
+          <text class="lbl" x="81" y="326" text-anchor="middle">Cattle farms</text>
+          <text class="sub" x="81" y="362" text-anchor="middle">Kleve · Borken · Steinfurt</text>
+          <text class="num" x="81" y="378" text-anchor="middle">83,333 kg/h wet manure</text>
+        </g>
+        <!-- truck on road -->
+        <g class="node" data-step="1">
+          <text class="sub" x="196" y="282" text-anchor="middle">75 km · EURO 5 truck</text>
+          <g id="truck">
+            <rect x="-15" y="-11" width="22" height="13" rx="2" fill="var(--truck)"/>
+            <rect x="7" y="-7" width="9" height="9" rx="2" fill="var(--truck)" opacity=".75"/>
+            <circle cx="-9" cy="4" r="3" fill="currentColor"/><circle cx="10" cy="4" r="3" fill="currentColor"/>
+          </g>
+        </g>
+        <!-- water inlet -->
+        <g class="node" data-step="2">
+          <text class="lbl" x="330" y="46" text-anchor="middle">Make-up water</text>
+          <text class="num" x="330" y="62" text-anchor="middle">5,167 kg/h</text>
+        </g>
+        <!-- slurry tank -->
+        <g class="node" data-step="2">
+          <rect class="vessel" x="285" y="252" width="90" height="96" rx="12"/>
+          <rect x="289" y="294" width="82" height="50" rx="8" fill="var(--manure)" opacity=".28"/>
+          <text class="lbl" x="330" y="280" text-anchor="middle">Slurry</text>
+          <text class="num" x="330" y="374" text-anchor="middle">20 wt% solids</text>
+        </g>
+        <!-- pumps -->
+        <g class="node" data-step="3">
+          <circle class="vessel" cx="430" cy="300" r="20"/><path d="M422 290 L442 300 L422 310 Z" fill="currentColor"/>
+          <circle class="vessel" cx="498" cy="300" r="20"/><path d="M490 290 L510 300 L490 310 Z" fill="currentColor"/>
+          <text class="sub" x="430" y="340" text-anchor="middle">P50</text>
+          <text class="sub" x="498" y="340" text-anchor="middle">P100</text>
+          <text class="num" x="464" y="266" text-anchor="middle">1 → 50 → 100 bar</text>
+        </g>
+        <!-- HTL reactor -->
+        <g class="node" data-step="4">
+          <rect class="glow" x="552" y="170" width="116" height="260" rx="40"/>
+          <rect class="vessel" x="566" y="184" width="88" height="232" rx="34"/>
+          <rect x="570" y="270" width="80" height="142" rx="28" fill="url(#hot)"/>
+          <text class="lbl" x="610" y="226" text-anchor="middle">HTL</text>
+          <text class="lbl" x="610" y="242" text-anchor="middle">reactor</text>
+          <text class="num" x="610" y="160" text-anchor="middle">350 °C · 100 bar</text>
+          <text class="sub" x="610" y="144" text-anchor="middle">RYield + RGibbs</text>
+        </g>
+        <!-- flash -->
+        <g class="node" data-step="5">
+          <rect class="vessel" x="744" y="226" width="56" height="148" rx="24"/>
+          <line x1="752" y1="300" x2="792" y2="300" stroke="currentColor" stroke-dasharray="3 3" opacity=".5"/>
+          <text class="lbl" x="738" y="244" text-anchor="end">Flash</text>
+          <text class="num" x="772" y="394" text-anchor="middle">30 °C · 1 bar</text>
+        </g>
+        <!-- treatment vessel (cases 2, 3) -->
+        <g class="node" data-step="6" id="treat">
+          <rect class="vessel" x="884" y="414" width="64" height="112" rx="18" id="treat-shape"/>
+          <g id="column-trays" opacity="0">
+            <line x1="892" y1="438" x2="940" y2="438" stroke="currentColor" opacity=".5"/><line x1="892" y1="458" x2="940" y2="458" stroke="currentColor" opacity=".5"/>
+            <line x1="892" y1="478" x2="940" y2="478" stroke="currentColor" opacity=".5"/><line x1="892" y1="498" x2="940" y2="498" stroke="currentColor" opacity=".5"/>
+          </g>
+          <text class="lbl" x="916" y="548" text-anchor="middle" id="treat-name">Gasifier</text>
+          <text class="num" x="916" y="564" text-anchor="middle" id="treat-cond">550 °C · 200 bar</text>
+        </g>
+        <!-- outputs -->
+        <g id="outputs"></g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="story">
+    <ol class="steps" id="steps"></ol>
+    <div class="progress"><i id="prog"></i></div>
+    <div class="caption" aria-live="polite"><h2 id="cap-h">—</h2><p id="cap-p"></p></div>
+  </div>
+
+  <div class="stage-card co2">
+    <div class="co2-top">
+      <h3>Carbon footprint of 1 kg bio-oil, building up</h3>
+      <div class="co2-total"><span id="co2-num">0.00</span><small>kg CO₂ eq</small></div>
+    </div>
+    <div class="track" id="track"></div>
+    <ul class="legend" id="co2-legend"></ul>
+  </div>
+
+  <div class="foot">Mass flows from the Aspen Plus base case; impacts from GaBi 9.1, CML 2001, cradle to gate (thesis Table 4.1). Part of <a href="https://github.com/malleshkomal/htl-manure-lca">github.com/malleshkomal/htl-manure-lca</a>.</div>
+</div>
+
+<script>
+const DATA = /*__DATA__*/;
+const NS = 'http://www.w3.org/2000/svg';
+const svg = document.getElementById('plant');
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let caseKey = 'case1', elKey = 'wind', playing = !reduce;
+const int = (v) => new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format(v);
+const el = (tag, attrs, parent) => { const n = document.createElementNS(NS, tag); Object.entries(attrs).forEach(([k, v]) => n.setAttribute(k, v)); if (parent) parent.append(n); return n; };
+
+/* Flows: path, colour, kg/h, the story step whose node they leave. */
+function flows() {
+  const m = DATA.mass, t = DATA.treatment[caseKey];
+  const f = [
+    { id: 'road', d: 'M138 300 L285 300', color: 'var(--manure)', kg: m.manure, step: 1 },
+    { id: 'water', d: 'M330 70 L330 252', color: 'var(--water)', kg: m.water, step: 2 },
+    { id: 'slurry', d: 'M375 300 L566 300', color: 'var(--manure)', kg: m.manure + m.water, step: 3 },
+    { id: 'solids', d: 'M610 416 L610 500', color: 'var(--solids)', kg: m.solids, step: 4, out: ['Solids', 'char + ash', 526, 538] },
+    { id: 'mix', d: 'M654 300 L744 300', color: 'var(--manure)', kg: m.manure + m.water - m.solids, step: 4 },
+    { id: 'gas', d: 'M772 226 L772 110 L1040 110', color: 'var(--gas)', kg: m.gas, step: 5, out: ['Gas', '67% CO₂, 20% CH₄', 110] },
+    { id: 'biocrude', d: 'M800 270 L1040 270', color: 'var(--biocrude)', kg: m.biocrude, step: 5, out: ['Biocrude', '39.1 MJ/kg', 270], hero: true },
+  ];
+  if (caseKey === 'case1') {
+    f.push({ id: 'aq', d: 'M800 340 L1040 340', color: 'var(--water)', kg: m.aqueous, step: 5, out: ['Aqueous phase', 'untreated, COD 41–77 g/L', 340] });
+  } else {
+    f.push({ id: 'aq', d: 'M800 340 L840 340 L840 470 L884 470', color: 'var(--water)', kg: m.aqueous, step: 5, under: true },
+      { id: 'clean', d: 'M948 500 L990 500 L990 545 L1040 545', color: 'var(--water)', kg: t.water, step: 6, out: ['Clean water', 'COD < 250 mg/L', 545] },
+      { id: 'off', d: 'M916 414 L916 395 L1040 395', color: 'var(--offgas)', kg: t.gas, step: 6, out: [caseKey === 'case2' ? 'CHG off-gas' : 'Volatiles', caseKey === 'case2' ? 'CH₄ + CO₂' : 'mostly CO₂', 395] });
+  }
+  return f;
+}
+const width = (kg) => 3 + 16 * Math.sqrt(kg / 88500);
+
+let F = [], parts = [];
+function build() {
+  const pipes = document.getElementById('pipes'), pg = document.getElementById('particles'), outs = document.getElementById('outputs');
+  pipes.replaceChildren(); pg.replaceChildren(); outs.replaceChildren(); parts = [];
+  F = flows();
+  F.forEach((f) => {
+    const w = width(f.kg);
+    el('path', { d: f.d, class: 'pipe', 'stroke-width': w + 6 }, pipes);
+    f.path = el('path', { d: f.d, class: 'flowline', 'stroke-width': w, style: `stroke:${f.color}` }, pipes);
+    f.len = f.path.getTotalLength();
+    const n = Math.max(3, Math.round(Math.sqrt(f.kg) / 11));
+    for (let i = 0; i < n; i++) {
+      const r = Math.max(2.2, Math.min(4.4, w / 3.4));
+      const c = el('circle', { r, style: `fill:${f.color}` }, pg);
+      parts.push({ f, c, off: (i / n) * f.len, jit: (Math.random() - 0.5) * Math.max(0, w - 2 * r) });
+    }
+    if (f.out) {
+      const [name, note, y, ox] = f.out;
+      const g = el('g', { class: 'node', 'data-step': f.step }, outs);
+      const bx = ox || 1048, by = Math.min(y - 26, 590 - 58);
+      el('rect', { class: 'box', x: bx, y: by, width: 144, height: 52, rx: 9, style: f.hero ? 'stroke:var(--biocrude);stroke-width:2' : '' }, g);
+      el('rect', { x: bx + 10, y: by + 12, width: 10, height: 10, rx: 3, style: `fill:${f.color}` }, g);
+      const t1 = el('text', { class: 'lbl', x: bx + 26, y: by + 21 }, g); t1.textContent = name;
+      const t2 = el('text', { class: 'num', x: bx + 10, y: by + 40 }, g); t2.textContent = `${int(f.kg)} kg/h · ${note}`;
+      if (t2.getComputedTextLength() > 128) { t2.textContent = `${int(f.kg)} kg/h`; }
+    }
+  });
+  const treat = document.getElementById('treat');
+  treat.style.display = caseKey === 'case1' ? 'none' : '';
+  document.getElementById('column-trays').setAttribute('opacity', caseKey === 'case3' ? 1 : 0);
+  document.getElementById('treat-name').textContent = caseKey === 'case2' ? 'Gasifier' : 'Distillation';
+  document.getElementById('treat-cond').textContent = caseKey === 'case2' ? '550 °C · 200 bar' : '6 stages · RR 1';
+  place(0);
+  buildCO2();
+  setStep(step, true);
+}
+
+function place(dt) {
+  parts.forEach((p) => {
+    p.off = (p.off + dt * 70) % p.f.len;
+    const pt = p.f.path.getPointAtLength(p.off);
+    const pt2 = p.f.path.getPointAtLength(Math.min(p.off + 1, p.f.len));
+    const dx = pt2.x - pt.x, dy = pt2.y - pt.y, n = Math.hypot(dx, dy) || 1;
+    p.c.setAttribute('cx', pt.x - (dy / n) * p.jit);
+    p.c.setAttribute('cy', pt.y + (dx / n) * p.jit);
+  });
+  const road = F[0];
+  const tp = road.path.getPointAtLength(truckOff % road.len);
+  document.getElementById('truck').setAttribute('transform', `translate(${tp.x},${tp.y - 6})`);
+}
+let truckOff = 0;
+
+/* Story */
+const STEPS = [
+  ['Collect', 'Collect and transport', 'Wet cattle manure from farms in Kleve, Borken and Steinfurt is trucked 75 km to the plant. 2,000 t/day, almost four fifths of it water. Diesel trucks are the main source of acidification and eutrophication.', ['transport']],
+  ['Slurry', 'Make a pumpable slurry', 'Water is added until the slurry holds 20% dry matter. HTL needs no drying, because water is the reaction medium. That is why it suits wet feedstocks like manure.', ['water']],
+  ['Pressurise', 'Pump to 100 bar', 'Two high-pressure pumps take the slurry from 1 to 50 to 100 bar, so the water stays liquid at reaction temperature. Pumping and pre-processing use electricity, from wind or the German grid.', ['electricity']],
+  ['React', 'Hydrothermal liquefaction', 'At 350 °C and 100 bar, hot compressed water breaks the manure apart. This conversion step causes most of the climate impact: 1.11 kg CO₂ eq for every kilogram of bio-oil.', ['htl']],
+  ['Separate', 'Separate the products', 'A flash drum at 30 °C and 1 bar releases the gas. The rest splits into biocrude, solids and a large water-rich aqueous phase. Out of 88.5 t/h, only 4.9 t/h is biocrude.', []],
+  ['Clean', 'Treat the aqueous phase', 'Case 1 leaves the aqueous phase untreated. Case 2 gasifies its organics at 550 °C; case 3 distils them out. Both return about 99% as water with COD below 250 mg/L.', ['treatment']],
+  ['Result', 'The result per kilogram', '', ['minor']],
+];
+const PARTS = {
+  transport: ['Transport (truck + diesel)', 'var(--truck)'], water: ['Desalinated water', 'var(--gas)'], electricity: ['Electricity', 'var(--elec)'],
+  htl: ['HTL conversion', 'var(--biocrude)'], treatment: ['Water treatment', 'var(--treat)'], minor: ['Heat', 'var(--ink-3)'],
+};
+function co2Parts() {
+  const rows = DATA.lcia.filter((r) => r.case === caseKey && r.electricity === elKey && r.category === 'GWP');
+  const sum = (pred) => rows.filter(pred).reduce((s, r) => s + r.value, 0);
+  return {
+    transport: sum((r) => r.contributor.startsWith('Truck') || r.contributor.startsWith('Diesel')),
+    water: sum((r) => r.contributor === 'Desalinated water'),
+    electricity: sum((r) => r.contributor.startsWith('Electricity')),
+    htl: sum((r) => r.contributor === 'HTL conversion'),
+    treatment: sum((r) => r.contributor === 'Hydrothermal gasification' || r.contributor === 'Fractional distillation'),
+    minor: sum((r) => r.contributor === 'Heat'),
+  };
+}
+let co2 = {};
+function buildCO2() {
+  co2 = co2Parts();
+  const total = Object.values(co2).reduce((a, b) => a + b, 0);
+  const max = 1.85;
+  const track = document.getElementById('track');
+  track.replaceChildren(...Object.keys(PARTS).map((k) => {
+    const s = document.createElement('span'); s.dataset.k = k; s.style.background = PARTS[k][1]; s.dataset.w = (100 * co2[k] / max).toFixed(3); return s;
+  }));
+  document.getElementById('co2-legend').replaceChildren(...Object.keys(PARTS).filter((k) => co2[k] > 1e-5).map((k) => {
+    const li = document.createElement('li'); const sw = document.createElement('span'); sw.className = 'sw'; sw.style.background = PARTS[k][1];
+    const t = document.createElement('span'); t.textContent = PARTS[k][0] + ' ';
+    const b = document.createElement('b'); b.textContent = co2[k] >= 0.01 ? co2[k].toFixed(3) : co2[k].toExponential(1);
+    li.append(sw, t, b); return li;
+  }));
+  STEPS[6][2] = `Every kilogram of biocrude (39.1 MJ) carries ${total.toFixed(2)} kg CO₂ eq from farm to plant gate in this scenario, about ${Math.round(1000 * total / 39.1)} g per MJ. Case 3 on wind power is the best overall: clean water and the lowest impact of the treated cases.`;
+}
+let step = 1, stepT = 0;
+const STEP_SECONDS = 6;
+function setStep(n, instant) {
+  step = n;
+  const shown = new Set(STEPS.slice(0, n).flatMap((s) => s[3]));
+  let running = 0;
+  document.querySelectorAll('#track span').forEach((s) => {
+    const on = shown.has(s.dataset.k) || n === 7;
+    s.style.transition = instant ? 'none' : '';
+    s.style.width = on ? s.dataset.w + '%' : '0';
+    if (on) running += co2[s.dataset.k];
+  });
+  animateNumber(running, instant);
+  document.getElementById('cap-h').textContent = `${n} · ${STEPS[n - 1][1]}`;
+  document.getElementById('cap-p').textContent = STEPS[n - 1][2];
+  document.querySelectorAll('#steps button').forEach((b, i) => { if (i + 1 === n) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
+  svg.classList.toggle('dimmed', n < 7);
+  svg.querySelectorAll('.node').forEach((g) => g.classList.toggle('on', Number(g.dataset.step) === n));
+}
+let shownNum = 0, numAnim = null;
+function animateNumber(target, instant) {
+  const out = document.getElementById('co2-num');
+  if (instant || reduce) { shownNum = target; out.textContent = target.toFixed(2); return; }
+  const from = shownNum, t0 = performance.now();
+  cancelAnimationFrame(numAnim);
+  const tick = (t) => {
+    const k = Math.min(1, (t - t0) / 900), e = 1 - Math.pow(1 - k, 3);
+    shownNum = from + (target - from) * e; out.textContent = shownNum.toFixed(2);
+    if (k < 1) numAnim = requestAnimationFrame(tick);
+  };
+  numAnim = requestAnimationFrame(tick);
+}
+document.getElementById('steps').replaceChildren(...STEPS.map((s, i) => {
+  const li = document.createElement('li'); const b = document.createElement('button'); b.type = 'button';
+  const n = document.createElement('span'); n.textContent = i + 1; b.append(n, document.createTextNode(s[0]));
+  b.addEventListener('click', () => { stepT = 0; setStep(i + 1); });
+  li.append(b); return li;
+}));
+
+/* Loop */
+let last = performance.now();
+function frame(t) {
+  const dt = Math.min(0.05, (t - last) / 1000); last = t;
+  if (playing) {
+    truckOff += dt * 45;
+    place(dt);
+    stepT += dt;
+    if (stepT >= STEP_SECONDS) { stepT = 0; setStep(step % STEPS.length + 1); }
+    document.getElementById('prog').style.width = (100 * stepT / STEP_SECONDS) + '%';
+  }
+  requestAnimationFrame(frame);
+}
+const playBtn = document.getElementById('play');
+function setPlaying(p) {
+  playing = p; playBtn.textContent = p ? '❚❚ Pause' : '▶ Play'; playBtn.setAttribute('aria-label', p ? 'Pause animation' : 'Play animation');
+}
+playBtn.addEventListener('click', () => setPlaying(!playing));
+function seg(prefix, keys, on) {
+  keys.forEach((k) => document.getElementById(prefix + k).addEventListener('click', () => {
+    keys.forEach((j) => document.getElementById(prefix + j).setAttribute('aria-pressed', String(j === k))); on(k);
+  }));
+}
+seg('case-', ['case1', 'case2', 'case3'], (k) => { caseKey = k; build(); });
+seg('el-', ['wind', 'grid'], (k) => { elKey = k; buildCO2(); setStep(step, true); });
+build();
+setPlaying(playing);
+if (reduce) { setStep(7, true); }
+requestAnimationFrame(frame);
+</script>

@@ -1,0 +1,406 @@
+<title>HTL Plant in Motion</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one wide process diagram that runs by itself, a story bar under it that walks
+   through the seven steps, and a carbon-footprint bar that fills as the steps play. */
+:root {
+  --paper: #f4f6f3; --sheet: #ffffff; --ink: #17201b; --ink-2: #4c5650; --ink-3: #78817b;
+  --rule: #dfe4df; --pipe: #e4e8e3; --accent: #1f6f5c;
+  --manure: #8a6d4b; --water: #1baf7a; --biocrude: #2a78d6; --gas: #9ea39b; --solids: #eda100;
+  --offgas: #6250d6; --heat: #eb6834; --elec: #eb6834; --truck: #1baf7a; --treat: #6250d6;
+  --vessel: #f7f9f6; --vessel-line: #17201b;
+  --display: "Newsreader", Georgia, serif;
+  --sans: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #121614; --sheet: #1a201d; --ink: #e9eeea; --ink-2: #aeb7b1; --ink-3: #828b85; --rule: #2b332f; --pipe: #29312d;
+    --accent: #5cc4a6; --manure: #b08b62; --water: #199e70; --biocrude: #3987e5; --gas: #7d847f; --solids: #c98500;
+    --offgas: #9085e9; --heat: #d95926; --elec: #d95926; --truck: #199e70; --treat: #9085e9; --vessel: #20272a; --vessel-line: #c9d1cc;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #121614; --sheet: #1a201d; --ink: #e9eeea; --ink-2: #aeb7b1; --ink-3: #828b85; --rule: #2b332f; --pipe: #29312d;
+  --accent: #5cc4a6; --manure: #b08b62; --water: #199e70; --biocrude: #3987e5; --gas: #7d847f; --solids: #c98500;
+  --offgas: #9085e9; --heat: #d95926; --elec: #d95926; --truck: #199e70; --treat: #9085e9; --vessel: #20272a; --vessel-line: #c9d1cc;
+}
+body { background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 76rem; margin-inline: auto; padding-block: 40px 56px; display: grid; gap: 22px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap > * { min-width: 0; }
+.kicker { font: 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(30px, 4.6vw, 46px); line-height: 1.08; text-wrap: balance; }
+.lede { margin: 0; max-width: 64ch; color: var(--ink-2); font-size: 17px; }
+.bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.seg { display: inline-flex; flex-wrap: wrap; gap: 3px; padding: 3px; background: var(--sheet); border: 1px solid var(--rule); border-radius: 18px; }
+.seg button, .play { font: 500 13px/1 var(--sans); color: var(--ink-2); background: transparent; border: 0; border-radius: 999px; padding: 8px 12px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.play { background: var(--ink); color: var(--paper); display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.stage-card { background: var(--sheet); border: 1px solid var(--rule); border-radius: 12px; padding: 14px; }
+.scroll { overflow-x: auto; }
+svg.plant { display: block; width: 100%; min-width: 760px; height: auto; color: var(--ink); }
+svg.plant text { font-family: var(--sans); fill: var(--ink); }
+.lbl { font-size: 13px; font-weight: 600; }
+.sub { font-size: 11.5px; fill: var(--ink-2) !important; }
+.num { font-family: var(--mono) !important; font-size: 11.5px; fill: var(--ink-2) !important; }
+.pipe { fill: none; stroke: var(--pipe); stroke-linecap: round; stroke-linejoin: round; }
+.flowline { fill: none; stroke-linecap: round; stroke-linejoin: round; opacity: .28; }
+.vessel { fill: var(--vessel); stroke: var(--vessel-line); stroke-width: 1.6; }
+.node { transition: opacity .4s; }
+.dimmed .node:not(.on) { opacity: .35; }
+.node.on .vessel, .node.on .box { stroke: var(--accent); stroke-width: 2.6; }
+.box { fill: var(--sheet); stroke: var(--rule); stroke-width: 1.2; }
+.glow { fill: var(--heat); opacity: .18; }
+@media (prefers-reduced-motion: no-preference) { .glow { animation: glow 2.4s ease-in-out infinite; } }
+@keyframes glow { 50% { opacity: .42; } }
+.story { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.steps { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.steps button { font: 500 12.5px/1 var(--sans); color: var(--ink-2); background: var(--sheet); border: 1px solid var(--rule); border-radius: 999px; padding: 7px 11px; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.steps button span { font-family: var(--mono); color: var(--ink-3); }
+.steps button[aria-current="step"] { border-color: var(--accent); color: var(--ink); box-shadow: inset 0 0 0 1px var(--accent); }
+.caption { display: grid; gap: 4px; min-height: 5.2em; }
+.caption h2 { margin: 0; font-family: var(--display); font-weight: 500; font-size: 24px; }
+.caption p { margin: 0; color: var(--ink-2); max-width: 70ch; }
+.progress { height: 3px; background: var(--rule); border-radius: 2px; overflow: hidden; }
+.progress i { display: block; height: 100%; width: 0; background: var(--accent); }
+.co2 { display: grid; gap: 10px; }
+.co2-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 16px; }
+.co2-top h3 { margin: 0; font-size: 15px; }
+.co2-total { font-family: var(--display); font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums; }
+.co2-total small { font-family: var(--sans); font-size: 14px; color: var(--ink-2); margin-left: 4px; }
+.track { position: relative; height: 26px; background: var(--paper); border: 1px solid var(--rule); border-radius: 7px; overflow: hidden; display: flex; }
+.track span { height: 100%; width: 0; transition: width .9s cubic-bezier(.2, .7, .2, 1); border-right: 2px solid var(--sheet); }
+.track span:last-child { border-right: 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; list-style: none; margin: 0; padding: 0; font-size: 12.5px; color: var(--ink-2); }
+.legend li { display: inline-flex; align-items: center; gap: 6px; }
+.legend b { font: 500 12px var(--mono); color: var(--ink); }
+.sw { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.foot { font-size: 13px; color: var(--ink-2); border-top: 1px solid var(--rule); padding-top: 14px; }
+.foot a { color: var(--accent); }
+</style>
+
+<div class="wrap">
+  <header style="display:grid;gap:10px">
+    <div class="kicker">Master thesis · K. M. Chougule · TU Bergakademie Freiberg</div>
+    <h1>Inside the plant: cattle manure to biocrude</h1>
+    <p class="lede">A 2,000 t/day hydrothermal liquefaction plant, animated from the Aspen Plus mass balance. Pipe width and particle density follow the real mass flows. Underneath, the carbon footprint of one kilogram of bio-oil builds up step by step.</p>
+  </header>
+
+  <div class="bar">
+    <div class="controls">
+      <button type="button" class="play" id="play" aria-label="Pause animation">❚❚ Pause</button>
+      <div class="seg" role="group" aria-label="Water treatment">
+        <button type="button" id="case-case1" aria-pressed="true">Case 1 · HTL</button>
+        <button type="button" id="case-case2" aria-pressed="false">Case 2 · + gasification</button>
+        <button type="button" id="case-case3" aria-pressed="false">Case 3 · + distillation</button>
+      </div>
+      <div class="seg" role="group" aria-label="Electricity">
+        <button type="button" id="el-wind" aria-pressed="true">Wind power</button>
+        <button type="button" id="el-grid" aria-pressed="false">German grid</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stage-card">
+    <div class="scroll">
+      <svg class="plant" id="plant" viewBox="0 0 1200 590" role="img" aria-label="Animated process diagram: wet cattle manure is trucked to the plant, mixed with water into a slurry, pumped to 100 bar, liquefied at 350 °C, and separated into biocrude, gas, solids and an aqueous phase, which cases 2 and 3 clean into reusable water.">
+        <defs>
+          <marker id="tip" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker>
+          <linearGradient id="hot" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="var(--heat)" stop-opacity=".55"/><stop offset="1" stop-color="var(--heat)" stop-opacity="0"/></linearGradient>
+        </defs>
+        <g id="pipes"></g>
+        <g id="particles"></g>
+
+        <!-- farm -->
+        <g class="node" data-step="1">
+          <rect class="box" x="24" y="258" width="114" height="84" rx="10"/>
+          <path d="M65 286 L81 272 L97 286 Z" fill="var(--manure)" opacity=".8"/>
+          <rect x="69" y="286" width="24" height="16" fill="var(--manure)" opacity=".55"/>
+          <text class="lbl" x="81" y="326" text-anchor="middle">Cattle farms</text>
+          <text class="sub" x="81" y="362" text-anchor="middle">Kleve · Borken · Steinfurt</text>
+          <text class="num" x="81" y="378" text-anchor="middle">83,333 kg/h wet manure</text>
+        </g>
+        <!-- truck on road -->
+        <g class="node" data-step="1">
+          <text class="sub" x="196" y="282" text-anchor="middle">75 km · EURO 5 truck</text>
+          <g id="truck">
+            <rect x="-15" y="-11" width="22" height="13" rx="2" fill="var(--truck)"/>
+            <rect x="7" y="-7" width="9" height="9" rx="2" fill="var(--truck)" opacity=".75"/>
+            <circle cx="-9" cy="4" r="3" fill="currentColor"/><circle cx="10" cy="4" r="3" fill="currentColor"/>
+          </g>
+        </g>
+        <!-- water inlet -->
+        <g class="node" data-step="2">
+          <text class="lbl" x="330" y="46" text-anchor="middle">Make-up water</text>
+          <text class="num" x="330" y="62" text-anchor="middle">5,167 kg/h</text>
+        </g>
+        <!-- slurry tank -->
+        <g class="node" data-step="2">
+          <rect class="vessel" x="285" y="252" width="90" height="96" rx="12"/>
+          <rect x="289" y="294" width="82" height="50" rx="8" fill="var(--manure)" opacity=".28"/>
+          <text class="lbl" x="330" y="280" text-anchor="middle">Slurry</text>
+          <text class="num" x="330" y="374" text-anchor="middle">20 wt% solids</text>
+        </g>
+        <!-- pumps -->
+        <g class="node" data-step="3">
+          <circle class="vessel" cx="430" cy="300" r="20"/><path d="M422 290 L442 300 L422 310 Z" fill="currentColor"/>
+          <circle class="vessel" cx="498" cy="300" r="20"/><path d="M490 290 L510 300 L490 310 Z" fill="currentColor"/>
+          <text class="sub" x="430" y="340" text-anchor="middle">P50</text>
+          <text class="sub" x="498" y="340" text-anchor="middle">P100</text>
+          <text class="num" x="464" y="266" text-anchor="middle">1 → 50 → 100 bar</text>
+        </g>
+        <!-- HTL reactor -->
+        <g class="node" data-step="4">
+          <rect class="glow" x="552" y="170" width="116" height="260" rx="40"/>
+          <rect class="vessel" x="566" y="184" width="88" height="232" rx="34"/>
+          <rect x="570" y="270" width="80" height="142" rx="28" fill="url(#hot)"/>
+          <text class="lbl" x="610" y="226" text-anchor="middle">HTL</text>
+          <text class="lbl" x="610" y="242" text-anchor="middle">reactor</text>
+          <text class="num" x="610" y="160" text-anchor="middle">350 °C · 100 bar</text>
+          <text class="sub" x="610" y="144" text-anchor="middle">RYield + RGibbs</text>
+        </g>
+        <!-- flash -->
+        <g class="node" data-step="5">
+          <rect class="vessel" x="744" y="226" width="56" height="148" rx="24"/>
+          <line x1="752" y1="300" x2="792" y2="300" stroke="currentColor" stroke-dasharray="3 3" opacity=".5"/>
+          <text class="lbl" x="738" y="244" text-anchor="end">Flash</text>
+          <text class="num" x="772" y="394" text-anchor="middle">30 °C · 1 bar</text>
+        </g>
+        <!-- treatment vessel (cases 2, 3) -->
+        <g class="node" data-step="6" id="treat">
+          <rect class="vessel" x="884" y="414" width="64" height="112" rx="18" id="treat-shape"/>
+          <g id="column-trays" opacity="0">
+            <line x1="892" y1="438" x2="940" y2="438" stroke="currentColor" opacity=".5"/><line x1="892" y1="458" x2="940" y2="458" stroke="currentColor" opacity=".5"/>
+            <line x1="892" y1="478" x2="940" y2="478" stroke="currentColor" opacity=".5"/><line x1="892" y1="498" x2="940" y2="498" stroke="currentColor" opacity=".5"/>
+          </g>
+          <text class="lbl" x="916" y="548" text-anchor="middle" id="treat-name">Gasifier</text>
+          <text class="num" x="916" y="564" text-anchor="middle" id="treat-cond">550 °C · 200 bar</text>
+        </g>
+        <!-- outputs -->
+        <g id="outputs"></g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="story">
+    <ol class="steps" id="steps"></ol>
+    <div class="progress"><i id="prog"></i></div>
+    <div class="caption" aria-live="polite"><h2 id="cap-h">—</h2><p id="cap-p"></p></div>
+  </div>
+
+  <div class="stage-card co2">
+    <div class="co2-top">
+      <h3>Carbon footprint of 1 kg bio-oil, building up</h3>
+      <div class="co2-total"><span id="co2-num">0.00</span><small>kg CO₂ eq</small></div>
+    </div>
+    <div class="track" id="track"></div>
+    <ul class="legend" id="co2-legend"></ul>
+  </div>
+
+  <div class="foot">Mass flows from the Aspen Plus base case; impacts from GaBi 9.1, CML 2001, cradle to gate (thesis Table 4.1). Part of <a href="https://github.com/malleshkomal/htl-manure-lca">github.com/malleshkomal/htl-manure-lca</a>.</div>
+</div>
+
+<script>
+const DATA = {"mass":{"manure":83333.33333333333,"water":5166.666666666628,"biocrude":4887.520195500808,"aqueous":70684.55928738232,"gas":8554.010342160414,"solids":4373.910174956407,"dry":17699.999999999993,"yieldDry":27.613108449157117,"yieldGas":48.327742046104056,"yieldSolids":24.711356920657675},"treatment":{"case2":{"water":70020.01901356786,"gas":664.5402738144579},"case3":{"water":70259.55919594596,"gas":425.0000914363609}},"totals":{"case1":{"wind":{"GWP":1.2578714,"AP":0.00035378055,"EP":8.51600726e-05,"FAETP":0.000887952513},"grid":{"GWP":1.6701114,"AP":0.00091348055,"EP":0.00018673007259999998,"FAETP":0.001455952513}},"case2":{"wind":{"GWP":1.3618714,"AP":0.00035378055,"EP":8.51600726e-05,"FAETP":0.000887952513},"grid":{"GWP":1.7781114,"AP":0.00091348055,"EP":0.00018673007259999998,"FAETP":0.001455952513}},"case3":{"wind":{"GWP":1.2743114,"AP":0.00035378055,"EP":8.51600726e-05,"FAETP":0.000887952513},"grid":{"GWP":1.6847514,"AP":0.00091348055,"EP":0.00018673007259999998,"FAETP":0.001455952513}}},"shareHTL":88.24431495938296,"lcia":[{"case":"case1","electricity":"wind","category":"GWP","unit":"kg CO2 eq","contributor":"Truck (EURO 5)","value":0.127},{"case":"case1","electricity":"wind","category":"GWP","unit":"kg CO2 eq","contributor":"Diesel mix at refinery","value":0.0114},{"case":"case1","electricity":"wind","category":"GWP","unit":"kg CO2 eq","contributor":"Desalinated water","value":0.00171},{"case":"case1","electricity":"wind","category":"GWP","unit":"kg CO2 eq","contributor":"Heat","value":1.4e-06},{"case":"case1","electricity":"wind","category":"GWP","unit":"kg CO2 eq","contributor":"HTL conversion","value":1.11},{"case":"case1","electricity":"wind","category":"GWP","unit":"kg CO2 eq","contributor":"Electricity (wind)","value":0.00776},{"case":"case1","electricity":"wind","category":"AP","unit":"kg SO2 eq","contributor":"Truck (EURO 5)","value":0.00027},{"case":"case1","electricity":"wind","category":"AP","unit":"kg SO2 eq","contributor":"Diesel mix at refinery","value":5.95e-05},{"case":"case1","electricity":"wind","category":"AP","unit":"kg SO2 eq","contributor":"Desalinated water","value":2.98e-06},{"case":"case1","electricity":"wind","category":"AP","unit":"kg SO2 eq","contributor":"Heat","value":6e-10},{"case":"case1","electricity":"wind","category":"AP","unit":"kg SO2 eq","contributor":"Electricity (wind)","value":2.13e-05},{"case":"case1","electricity":"wind","category":"EP","unit":"kg PO4 eq","contributor":"Truck (EURO 5)","value":7.24e-05},{"case":"case1","electricity":"wind","category":"EP","unit":"kg PO4 eq","contributor":"Diesel mix at refinery","value":9.29e-06},{"case":"case1","electricity":"wind","category":"EP","unit":"kg PO4 eq","contributor":"Desalinated water","value":1.04e-06},{"case":"case1","electricity":"wind","category":"EP","unit":"kg PO4 eq","contributor":"Heat","value":1e-10},{"case":"case1","electricity":"wind","category":"EP","unit":"kg PO4 eq","contributor":"Electricity (wind)","value":2.43e-06},{"case":"case1","electricity":"wind","category":"FAETP","unit":"kg DCB eq","contributor":"Truck (EURO 5)","value":1.72e-07},{"case":"case1","electricity":"wind","category":"FAETP","unit":"kg DCB eq","contributor":"Diesel mix at refinery","value":0.000809},{"case":"case1","electricity":"wind","category":"FAETP","unit":"kg DCB eq","contributor":"Desalinated water","value":9.78e-06},{"case":"case1","electricity":"wind","category":"FAETP","unit":"kg DCB eq","contributor":"Heat","value":5e-10},{"case":"case1","electricity":"wind","category":"FAETP","unit":"kg DCB eq","contributor":"Electricity (wind)","value":6.9e-05},{"case":"case1","electricity":"grid","category":"GWP","unit":"kg CO2 eq","contributor":"Truck (EURO 5)","value":0.127},{"case":"case1","electricity":"grid","category":"GWP","unit":"kg CO2 eq","contributor":"Diesel mix at refinery","value":0.0114},{"case":"case1","electricity":"grid","category":"GWP","unit":"kg CO2 eq","contributor":"Desalinated water","value":0.00171},{"case":"case1","electricity":"grid","category":"GWP","unit":"kg CO2 eq","contributor":"Heat","value":1.4e-06},{"case":"case1","electricity":"grid","category":"GWP","unit":"kg CO2 eq","contributor":"HTL conversion","value":1.11},{"case":"case1","electricity":"grid","category":"GWP","unit":"kg CO2 eq","contributor":"Electricity (German grid mix)","value":0.42},{"case":"case1","electricity":"grid","category":"AP","unit":"kg SO2 eq","contributor":"Truck (EURO 5)","value":0.00027},{"case":"case1","electricity":"grid","category":"AP","unit":"kg SO2 eq","contributor":"Diesel mix at refinery","value":5.95e-05},{"case":"case1","electricity":"grid","category":"AP","unit":"kg SO2 eq","contributor":"Desalinated water","value":2.98e-06},{"case":"case1","electricity":"grid","category":"AP","unit":"kg SO2 eq","contributor":"Heat","value":6e-10},{"case":"case1","electricity":"grid","category":"AP","unit":"kg SO2 eq","contributor":"Electricity (German grid mix)","value":0.000581},{"case":"case1","electricity":"grid","category":"EP","unit":"kg PO4 eq","contributor":"Truck (EURO 5)","value":7.24e-05},{"case":"case1","electricity":"grid","category":"EP","unit":"kg PO4 eq","contributor":"Diesel mix at refinery","value":9.29e-06},{"case":"case1","electricity":"grid","category":"EP","unit":"kg PO4 eq","contributor":"Desalinated water","value":1.04e-06},{"case":"case1","electricity":"grid","category":"EP","unit":"kg PO4 eq","contributor":"Heat","value":1e-10},{"case":"case1","electricity":"grid","category":"EP","unit":"kg PO4 eq","contributor":"Electricity (German grid mix)","value":0.000104},{"case":"case1","electricity":"grid","category":"FAETP","unit":"kg DCB eq","contributor":"Truck (EURO 5)","value":1.72e-07},{"case":"case1","electricity":"grid","category":"FAETP","unit":"kg DCB eq","contributor":"Diesel mix at refinery","value":0.000809},{"case":"case1","electricity":"grid","category":"FAETP","unit":"kg DCB eq","contributor":"Desalinated water","value":9.78e-06},{"case":"case1","electricity":"grid","category":"FAETP","unit":"kg DCB eq","contributor":"Heat","value":5e-10},{"case":"case1","electricity":"grid","category":"FAETP","unit":"kg DCB eq","contributor":"Electricity (German grid mix)","value":0.000637},{"case":"case2","electricity":"wind","category":"GWP","unit":"kg CO2 eq","contributor":"Truck (EURO 5)","value":0.127},{"case":"case2","electricity":"wind","category":"GWP","unit":"kg CO2 eq","contributor":"Diesel mix at refinery","value":0.0114},{"case":"case2","electricity":"wind","category":"GWP","unit":"kg CO2 eq","contributor":"Desalinated water","value":0.00171},{"case":"case2","electricity":"wind","category":"GWP","unit":"kg CO2 eq","contributor":"Heat","value":1.4e-06},{"case":"case2","electricity":"wind","category":"GWP","unit":"kg CO2 eq","contributor":"HTL conversion","value":1.11},{"case":"case2","electricity":"wind","category":"GWP","unit":"kg CO2 eq","contributor":"Electricity (wind)","value":0.00776},{"case":"case2","electricity":"wind","category":"GWP","unit":"kg CO2 eq","contributor":"Hydrothermal gasification","value":0.104},{"case":"case2","electricity":"wind","category":"AP","unit":"kg SO2 eq","contributor":"Truck (EURO 5)","value":0.00027},{"case":"case2","electricity":"wind","category":"AP","unit":"kg SO2 eq","contributor":"Diesel mix at refinery","value":5.95e-05},{"case":"case2","electricity":"wind","category":"AP","unit":"kg SO2 eq","contributor":"Desalinated water","value":2.98e-06},{"case":"case2","electricity":"wind","category":"AP","unit":"kg SO2 eq","contributor":"Heat","value":6e-10},{"case":"case2","electricity":"wind","category":"AP","unit":"kg SO2 eq","contributor":"Electricity (wind)","value":2.13e-05},{"case":"case2","electricity":"wind","category":"EP","unit":"kg PO4 eq","contributor":"Truck (EURO 5)","value":7.24e-05},{"case":"case2","electricity":"wind","category":"EP","unit":"kg PO4 eq","contributor":"Diesel mix at refinery","value":9.29e-06},{"case":"case2","electricity":"wind","category":"EP","unit":"kg PO4 eq","contributor":"Desalinated water","value":1.04e-06},{"case":"case2","electricity":"wind","category":"EP","unit":"kg PO4 eq","contributor":"Heat","value":1e-10},{"case":"case2","electricity":"wind","category":"EP","unit":"kg PO4 eq","contributor":"Electricity (wind)","value":2.43e-06},{"case":"case2","electricity":"wind","category":"FAETP","unit":"kg DCB eq","contributor":"Truck (EURO 5)","value":1.72e-07},{"case":"case2","electricity":"wind","category":"FAETP","unit":"kg DCB eq","contributor":"Diesel mix at refinery","value":0.000809},{"case":"case2","electricity":"wind","category":"FAETP","unit":"kg DCB eq","contributor":"Desalinated water","value":9.78e-06},{"case":"case2","electricity":"wind","category":"FAETP","unit":"kg DCB eq","contributor":"Heat","value":5e-10},{"case":"case2","electricity":"wind","category":"FAETP","unit":"kg DCB eq","contributor":"Electricity (wind)","value":6.9e-05},{"case":"case2","electricity":"grid","category":"GWP","unit":"kg CO2 eq","contributor":"Truck (EURO 5)","value":0.127},{"case":"case2","electricity":"grid","category":"GWP","unit":"kg CO2 eq","contributor":"Diesel mix at refinery","value":0.0114},{"case":"case2","electricity":"grid","category":"GWP","unit":"kg CO2 eq","contributor":"Desalinated water","value":0.00171},{"case":"case2","electricity":"grid","category":"GWP","unit":"kg CO2 eq","contributor":"Heat","value":1.4e-06},{"case":"case2","electricity":"grid","category":"GWP","unit":"kg CO2 eq","contributor":"HTL conversion","value":1.11},{"case":"case2","electricity":"grid","category":"GWP","unit":"kg CO2 eq","contributor":"Electricity (German grid mix)","value":0.424},{"case":"case2","electricity":"grid","category":"GWP","unit":"kg CO2 eq","contributor":"Hydrothermal gasification","value":0.104},{"case":"case2","electricity":"grid","category":"AP","unit":"kg SO2 eq","contributor":"Truck (EURO 5)","value":0.00027},{"case":"case2","electricity":"grid","category":"AP","unit":"kg SO2 eq","contributor":"Diesel mix at refinery","value":5.95e-05},{"case":"case2","electricity":"grid","category":"AP","unit":"kg SO2 eq","contributor":"Desalinated water","value":2.98e-06},{"case":"case2","electricity":"grid","category":"AP","unit":"kg SO2 eq","contributor":"Heat","value":6e-10},{"case":"case2","electricity":"grid","category":"AP","unit":"kg SO2 eq","contributor":"Electricity (German grid mix)","value":0.000581},{"case":"case2","electricity":"grid","category":"EP","unit":"kg PO4 eq","contributor":"Truck (EURO 5)","value":7.24e-05},{"case":"case2","electricity":"grid","category":"EP","unit":"kg PO4 eq","contributor":"Diesel mix at refinery","value":9.29e-06},{"case":"case2","electricity":"grid","category":"EP","unit":"kg PO4 eq","contributor":"Desalinated water","value":1.04e-06},{"case":"case2","electricity":"grid","category":"EP","unit":"kg PO4 eq","contributor":"Heat","value":1e-10},{"case":"case2","electricity":"grid","category":"EP","unit":"kg PO4 eq","contributor":"Electricity (German grid mix)","value":0.000104},{"case":"case2","electricity":"grid","category":"FAETP","unit":"kg DCB eq","contributor":"Truck (EURO 5)","value":1.72e-07},{"case":"case2","electricity":"grid","category":"FAETP","unit":"kg DCB eq","contributor":"Diesel mix at refinery","value":0.000809},{"case":"case2","electricity":"grid","category":"FAETP","unit":"kg DCB eq","contributor":"Desalinated water","value":9.78e-06},{"case":"case2","electricity":"grid","category":"FAETP","unit":"kg DCB eq","contributor":"Heat","value":5e-10},{"case":"case2","electricity":"grid","category":"FAETP","unit":"kg DCB eq","contributor":"Electricity (German grid mix)","value":0.000637},{"case":"case3","electricity":"wind","category":"GWP","unit":"kg CO2 eq","contributor":"Truck (EURO 5)","value":0.127},{"case":"case3","electricity":"wind","category":"GWP","unit":"kg CO2 eq","contributor":"Diesel mix at refinery","value":0.0114},{"case":"case3","electricity":"wind","category":"GWP","unit":"kg CO2 eq","contributor":"Desalinated water","value":0.00171},{"case":"case3","electricity":"wind","category":"GWP","unit":"kg CO2 eq","contributor":"Heat","value":1.4e-06},{"case":"case3","electricity":"wind","category":"GWP","unit":"kg CO2 eq","contributor":"HTL conversion","value":1.11},{"case":"case3","electricity":"wind","category":"GWP","unit":"kg CO2 eq","contributor":"Electricity (wind)","value":0.0078},{"case":"case3","electricity":"wind","category":"GWP","unit":"kg CO2 eq","contributor":"Fractional distillation","value":0.0164},{"case":"case3","electricity":"wind","category":"AP","unit":"kg SO2 eq","contributor":"Truck (EURO 5)","value":0.00027},{"case":"case3","electricity":"wind","category":"AP","unit":"kg SO2 eq","contributor":"Diesel mix at refinery","value":5.95e-05},{"case":"case3","electricity":"wind","category":"AP","unit":"kg SO2 eq","contributor":"Desalinated water","value":2.98e-06},{"case":"case3","electricity":"wind","category":"AP","unit":"kg SO2 eq","contributor":"Heat","value":6e-10},{"case":"case3","electricity":"wind","category":"AP","unit":"kg SO2 eq","contributor":"Electricity (wind)","value":2.13e-05},{"case":"case3","electricity":"wind","category":"EP","unit":"kg PO4 eq","contributor":"Truck (EURO 5)","value":7.24e-05},{"case":"case3","electricity":"wind","category":"EP","unit":"kg PO4 eq","contributor":"Diesel mix at refinery","value":9.29e-06},{"case":"case3","electricity":"wind","category":"EP","unit":"kg PO4 eq","contributor":"Desalinated water","value":1.04e-06},{"case":"case3","electricity":"wind","category":"EP","unit":"kg PO4 eq","contributor":"Heat","value":1e-10},{"case":"case3","electricity":"wind","category":"EP","unit":"kg PO4 eq","contributor":"Electricity (wind)","value":2.43e-06},{"case":"case3","electricity":"wind","category":"FAETP","unit":"kg DCB eq","contributor":"Truck (EURO 5)","value":1.72e-07},{"case":"case3","electricity":"wind","category":"FAETP","unit":"kg DCB eq","contributor":"Diesel mix at refinery","value":0.000809},{"case":"case3","electricity":"wind","category":"FAETP","unit":"kg DCB eq","contributor":"Desalinated water","value":9.78e-06},{"case":"case3","electricity":"wind","category":"FAETP","unit":"kg DCB eq","contributor":"Heat","value":5e-10},{"case":"case3","electricity":"wind","category":"FAETP","unit":"kg DCB eq","contributor":"Electricity (wind)","value":6.9e-05},{"case":"case3","electricity":"grid","category":"GWP","unit":"kg CO2 eq","contributor":"Truck (EURO 5)","value":0.127},{"case":"case3","electricity":"grid","category":"GWP","unit":"kg CO2 eq","contributor":"Diesel mix at refinery","value":0.0114},{"case":"case3","electricity":"grid","category":"GWP","unit":"kg CO2 eq","contributor":"Desalinated water","value":0.00171},{"case":"case3","electricity":"grid","category":"GWP","unit":"kg CO2 eq","contributor":"Heat","value":1.4e-06},{"case":"case3","electricity":"grid","category":"GWP","unit":"kg CO2 eq","contributor":"HTL conversion","value":1.11},{"case":"case3","electricity":"grid","category":"GWP","unit":"kg CO2 eq","contributor":"Electricity (German grid mix)","value":0.424},{"case":"case3","electricity":"grid","category":"GWP","unit":"kg CO2 eq","contributor":"Fractional distillation","value":0.01064},{"case":"case3","electricity":"grid","category":"AP","unit":"kg SO2 eq","contributor":"Truck (EURO 5)","value":0.00027},{"case":"case3","electricity":"grid","category":"AP","unit":"kg SO2 eq","contributor":"Diesel mix at refinery","value":5.95e-05},{"case":"case3","electricity":"grid","category":"AP","unit":"kg SO2 eq","contributor":"Desalinated water","value":2.98e-06},{"case":"case3","electricity":"grid","category":"AP","unit":"kg SO2 eq","contributor":"Heat","value":6e-10},{"case":"case3","electricity":"grid","category":"AP","unit":"kg SO2 eq","contributor":"Electricity (German grid mix)","value":0.000581},{"case":"case3","electricity":"grid","category":"EP","unit":"kg PO4 eq","contributor":"Truck (EURO 5)","value":7.24e-05},{"case":"case3","electricity":"grid","category":"EP","unit":"kg PO4 eq","contributor":"Diesel mix at refinery","value":9.29e-06},{"case":"case3","electricity":"grid","category":"EP","unit":"kg PO4 eq","contributor":"Desalinated water","value":1.04e-06},{"case":"case3","electricity":"grid","category":"EP","unit":"kg PO4 eq","contributor":"Heat","value":1e-10},{"case":"case3","electricity":"grid","category":"EP","unit":"kg PO4 eq","contributor":"Electricity (German grid mix)","value":0.000104},{"case":"case3","electricity":"grid","category":"FAETP","unit":"kg DCB eq","contributor":"Truck (EURO 5)","value":1.72e-07},{"case":"case3","electricity":"grid","category":"FAETP","unit":"kg DCB eq","contributor":"Diesel mix at refinery","value":0.000809},{"case":"case3","electricity":"grid","category":"FAETP","unit":"kg DCB eq","contributor":"Desalinated water","value":9.78e-06},{"case":"case3","electricity":"grid","category":"FAETP","unit":"kg DCB eq","contributor":"Heat","value":5e-10},{"case":"case3","electricity":"grid","category":"FAETP","unit":"kg DCB eq","contributor":"Electricity (German grid mix)","value":0.000637}],"feedstock":[{"property":"C","basis":"daf","cattle_manure_this_study":38.83,"dairy_manure_ref104":42.63,"swine_manure_ref105":33.52,"unit":"wt%"},{"property":"H","basis":"daf","cattle_manure_this_study":5.63,"dairy_manure_ref104":6.43,"swine_manure_ref105":6.16,"unit":"wt%"},{"property":"O","basis":"daf","cattle_manure_this_study":31.21,"dairy_manure_ref104":39.7,"swine_manure_ref105":57.51,"unit":"wt%"},{"property":"N","basis":"daf","cattle_manure_this_study":5.68,"dairy_manure_ref104":2.01,"swine_manure_ref105":2.81,"unit":"wt%"},{"property":"S","basis":"daf","cattle_manure_this_study":1.055,"dairy_manure_ref104":0.42,"swine_manure_ref105":null,"unit":"wt%"},{"property":"moisture","basis":"as received","cattle_manure_this_study":78.76,"dairy_manure_ref104":null,"swine_manure_ref105":20.0,"unit":"wt%"},{"property":"fixed_carbon","basis":"dry","cattle_manure_this_study":18.64,"dairy_manure_ref104":9.51,"swine_manure_ref105":null,"unit":"wt%"},{"property":"volatile_matter","basis":"dry","cattle_manure_this_study":63.784,"dairy_manure_ref104":79.55,"swine_manure_ref105":77.7,"unit":"wt%"},{"property":"ash","basis":"dry","cattle_manure_this_study":17.57,"dairy_manure_ref104":10.94,"swine_manure_ref105":22.3,"unit":"wt%"}],"biocrude":[{"property":"C","raw_manure_this_study":38.83,"htl_biocrude_this_study":60.56,"swine_manure_ref35":71.2,"cattle_manure_ref34":73.72,"dairy_manure_ref36":75.1,"unit":"wt%"},{"property":"H","raw_manure_this_study":5.63,"htl_biocrude_this_study":8.045,"swine_manure_ref35":9.5,"cattle_manure_ref34":8.13,"dairy_manure_ref36":8.2,"unit":"wt%"},{"property":"O","raw_manure_this_study":31.21,"htl_biocrude_this_study":29.11,"swine_manure_ref35":15.6,"cattle_manure_ref34":16.76,"dairy_manure_ref36":14.1,"unit":"wt%"},{"property":"N","raw_manure_this_study":5.68,"htl_biocrude_this_study":1.48,"swine_manure_ref35":3.7,"cattle_manure_ref34":1.39,"dairy_manure_ref36":2.7,"unit":"wt%"},{"property":"S","raw_manure_this_study":1.055,"htl_biocrude_this_study":1.29,"swine_manure_ref35":0.12,"cattle_manure_ref34":0.0,"dairy_manure_ref36":0.0,"unit":"wt%"},{"property":"HHV","raw_manure_this_study":7.9,"htl_biocrude_this_study":39.096,"swine_manure_ref35":34.7,"cattle_manure_ref34":35.53,"dairy_manure_ref36":34.7,"unit":"MJ/kg"},{"property":"oil_yield_dry_basis","raw_manure_this_study":null,"htl_biocrude_this_study":27.61,"swine_manure_ref35":30.2,"cattle_manure_ref34":27.79,"dairy_manure_ref36":19.05,"unit":"%"}],"offgas":[{"component":"CO2","wt_percent":67},{"component":"CH4","wt_percent":20},{"component":"N2","wt_percent":11},{"component":"H2","wt_percent":1},{"component":"H2S","wt_percent":1}],"air":[{"substance":"carbon dioxide, biotic","total":0.008606,"htl":null,"diesel":0.00123,"wind":0.000795,"water":0.000311,"heat":3.1e-09,"truck":0.00627},{"substance":"carbon dioxide, fossil","total":1.251231,"htl":1.11,"diesel":0.0134,"wind":0.00726,"water":0.00157,"heat":1.36e-06,"truck":0.119},{"substance":"carbon monoxide, biogenic","total":0.000289,"htl":null,"diesel":3.47e-05,"wind":2.59e-05,"water":1.79e-06,"heat":8e-10,"truck":0.000227},{"substance":"hydrogen chloride","total":4.13e-07,"htl":null,"diesel":1.31e-07,"wind":2.33e-07,"water":4.89e-08,"heat":0.0,"truck":null},{"substance":"methane","total":0.000154,"htl":null,"diesel":0.000141,"wind":1.1e-05,"water":2.36e-06,"heat":3.6e-09,"truck":8.56e-08},{"substance":"nitrogen oxides","total":4.19e-05,"htl":null,"diesel":2.87e-05,"wind":1.05e-05,"water":2.72e-06,"heat":5e-10,"truck":null},{"substance":"particulates","total":1.48e-05,"htl":null,"diesel":4.67e-06,"wind":3.63e-06,"water":3.08e-07,"heat":0.0,"truck":6.19e-06},{"substance":"sulfur dioxide","total":4.31e-05,"htl":null,"diesel":3.1e-05,"wind":1.04e-05,"water":9.26e-07,"heat":2e-10,"truck":7.89e-07},{"substance":"sulfur oxides","total":2.06e-17,"htl":null,"diesel":6.81e-18,"wind":1.38e-17,"water":8.09e-21,"heat":2.08e-25,"truck":null},{"substance":"nitrous oxide","total":7.83e-06,"htl":null,"diesel":1.37e-06,"wind":1.76e-07,"water":8.41e-08,"heat":0.0,"truck":6.2e-06}],"allocation":[{"product":"biocrude","mass_allocation_pct":47,"economic_allocation_pct":69.0,"price":400.0,"price_unit":"EUR/t"},{"product":"biochar","mass_allocation_pct":47,"economic_allocation_pct":31.0,"price":200.0,"price_unit":"EUR/t"},{"product":"wastewater","mass_allocation_pct":6,"economic_allocation_pct":0.2,"price":1.64,"price_unit":"EUR/m3"}],"water":[{"indicator":"Blue water consumption","wind_electricity_pct":89.7,"grid_electricity_pct":39.64},{"indicator":"Total fresh water consumption (incl. rain water)","wind_electricity_pct":34.5,"grid_electricity_pct":8.48}],"lci":{"case1_wind":[{"stage":"Transport","direction":"input","flow":"manure transport, 75 km","amount":1.2788,"unit":"t·km","provider":"Truck, EURO 5, diesel driven (GaBi)"},{"stage":"Pre-processing","direction":"input","flow":"wet cattle manure","amount":17.05,"unit":"kg","provider":"farm (burden-free waste)"},{"stage":"Pre-processing","direction":"input","flow":"process water","amount":1.057,"unit":"kg","provider":"DE: Water, desalinated (GaBi)"},{"stage":"Pre-processing","direction":"input","flow":"electricity","amount":0.2888,"unit":"kWh","provider":"DE: Electricity from wind power (GaBi)"},{"stage":"HTL","direction":"input","flow":"electricity","amount":0.452,"unit":"kWh","provider":"DE: Electricity from wind power (GaBi)"},{"stage":"HTL","direction":"input","flow":"heat","amount":5.01,"unit":"as printed (cal/hr)","provider":"EU: Thermal energy (GaBi, 'EU-23: Heat')"},{"stage":"HTL","direction":"output","flow":"bio-oil (biocrude)","amount":1.0,"unit":"kg","provider":"reference flow"},{"stage":"HTL","direction":"output","flow":"gas (CO2, CH4, N2, H2, H2S)","amount":1.75,"unit":"kg","provider":"emission / off-gas"},{"stage":"HTL","direction":"output","flow":"solids (char + ash)","amount":0.895,"unit":"kg","provider":"landfill / fertiliser"},{"stage":"HTL","direction":"output","flow":"aqueous phase (untreated)","amount":14.462,"unit":"kg","provider":"wastewater"}],"case1_grid":[{"stage":"Transport","direction":"input","flow":"manure transport, 75 km","amount":1.2788,"unit":"t·km","provider":"Truck, EURO 5, diesel driven (GaBi)"},{"stage":"Pre-processing","direction":"input","flow":"wet cattle manure","amount":17.05,"unit":"kg","provider":"farm (burden-free waste)"},{"stage":"Pre-processing","direction":"input","flow":"process water","amount":1.057,"unit":"kg","provider":"DE: Water, desalinated (GaBi)"},{"stage":"Pre-processing","direction":"input","flow":"electricity","amount":0.2888,"unit":"kWh","provider":"DE: Electricity grid mix (GaBi)"},{"stage":"HTL","direction":"input","flow":"electricity","amount":0.452,"unit":"kWh","provider":"DE: Electricity grid mix (GaBi)"},{"stage":"HTL","direction":"input","flow":"heat","amount":5.01,"unit":"as printed (cal/hr)","provider":"EU: Thermal energy (GaBi, 'EU-23: Heat')"},{"stage":"HTL","direction":"output","flow":"bio-oil (biocrude)","amount":1.0,"unit":"kg","provider":"reference flow"},{"stage":"HTL","direction":"output","flow":"gas (CO2, CH4, N2, H2, H2S)","amount":1.75,"unit":"kg","provider":"emission / off-gas"},{"stage":"HTL","direction":"output","flow":"solids (char + ash)","amount":0.895,"unit":"kg","provider":"landfill / fertiliser"},{"stage":"HTL","direction":"output","flow":"aqueous phase (untreated)","amount":14.462,"unit":"kg","provider":"wastewater"}],"case2_wind":[{"stage":"Transport","direction":"input","flow":"manure transport, 75 km","amount":1.2788,"unit":"t·km","provider":"Truck, EURO 5, diesel driven (GaBi)"},{"stage":"Pre-processing","direction":"input","flow":"wet cattle manure","amount":17.05,"unit":"kg","provider":"farm (burden-free waste)"},{"stage":"Pre-processing","direction":"input","flow":"process water","amount":1.057,"unit":"kg","provider":"DE: Water, desalinated (GaBi)"},{"stage":"Pre-processing","direction":"input","flow":"electricity","amount":0.2888,"unit":"kWh","provider":"DE: Electricity from wind power (GaBi)"},{"stage":"HTL","direction":"input","flow":"electricity","amount":0.452,"unit":"kWh","provider":"DE: Electricity from wind power (GaBi)"},{"stage":"HTL","direction":"input","flow":"heat","amount":5.01,"unit":"as printed (cal/hr)","provider":"EU: Thermal energy (GaBi, 'EU-23: Heat')"},{"stage":"HTL","direction":"output","flow":"bio-oil (biocrude)","amount":1.0,"unit":"kg","provider":"reference flow"},{"stage":"HTL","direction":"output","flow":"gas (CO2, CH4, N2, H2, H2S)","amount":1.75,"unit":"kg","provider":"emission / off-gas"},{"stage":"HTL","direction":"output","flow":"solids (char + ash)","amount":0.895,"unit":"kg","provider":"landfill / fertiliser"},{"stage":"Hydrothermal gasification","direction":"input","flow":"aqueous phase","amount":14.462,"unit":"kg","provider":"from HTL"},{"stage":"Hydrothermal gasification","direction":"output","flow":"clean water (COD < 250 mg/L)","amount":14.326,"unit":"kg","provider":"reuse"},{"stage":"Hydrothermal gasification","direction":"output","flow":"off-gas / volatile organics","amount":0.136,"unit":"kg","provider":"emission"}],"case2_grid":[{"stage":"Transport","direction":"input","flow":"manure transport, 75 km","amount":1.2788,"unit":"t·km","provider":"Truck, EURO 5, diesel driven (GaBi)"},{"stage":"Pre-processing","direction":"input","flow":"wet cattle manure","amount":17.05,"unit":"kg","provider":"farm (burden-free waste)"},{"stage":"Pre-processing","direction":"input","flow":"process water","amount":1.057,"unit":"kg","provider":"DE: Water, desalinated (GaBi)"},{"stage":"Pre-processing","direction":"input","flow":"electricity","amount":0.2888,"unit":"kWh","provider":"DE: Electricity grid mix (GaBi)"},{"stage":"HTL","direction":"input","flow":"electricity","amount":0.452,"unit":"kWh","provider":"DE: Electricity grid mix (GaBi)"},{"stage":"HTL","direction":"input","flow":"heat","amount":5.01,"unit":"as printed (cal/hr)","provider":"EU: Thermal energy (GaBi, 'EU-23: Heat')"},{"stage":"HTL","direction":"output","flow":"bio-oil (biocrude)","amount":1.0,"unit":"kg","provider":"reference flow"},{"stage":"HTL","direction":"output","flow":"gas (CO2, CH4, N2, H2, H2S)","amount":1.75,"unit":"kg","provider":"emission / off-gas"},{"stage":"HTL","direction":"output","flow":"solids (char + ash)","amount":0.895,"unit":"kg","provider":"landfill / fertiliser"},{"stage":"Hydrothermal gasification","direction":"input","flow":"aqueous phase","amount":14.462,"unit":"kg","provider":"from HTL"},{"stage":"Hydrothermal gasification","direction":"output","flow":"clean water (COD < 250 mg/L)","amount":14.326,"unit":"kg","provider":"reuse"},{"stage":"Hydrothermal gasification","direction":"output","flow":"off-gas / volatile organics","amount":0.136,"unit":"kg","provider":"emission"}],"case3_wind":[{"stage":"Transport","direction":"input","flow":"manure transport, 75 km","amount":1.2788,"unit":"t·km","provider":"Truck, EURO 5, diesel driven (GaBi)"},{"stage":"Pre-processing","direction":"input","flow":"wet cattle manure","amount":17.05,"unit":"kg","provider":"farm (burden-free waste)"},{"stage":"Pre-processing","direction":"input","flow":"process water","amount":1.057,"unit":"kg","provider":"DE: Water, desalinated (GaBi)"},{"stage":"Pre-processing","direction":"input","flow":"electricity","amount":0.2888,"unit":"kWh","provider":"DE: Electricity from wind power (GaBi)"},{"stage":"HTL","direction":"input","flow":"electricity","amount":0.452,"unit":"kWh","provider":"DE: Electricity from wind power (GaBi)"},{"stage":"HTL","direction":"input","flow":"heat","amount":5.01,"unit":"as printed (cal/hr)","provider":"EU: Thermal energy (GaBi, 'EU-23: Heat')"},{"stage":"HTL","direction":"output","flow":"bio-oil (biocrude)","amount":1.0,"unit":"kg","provider":"reference flow"},{"stage":"HTL","direction":"output","flow":"gas (CO2, CH4, N2, H2, H2S)","amount":1.75,"unit":"kg","provider":"emission / off-gas"},{"stage":"HTL","direction":"output","flow":"solids (char + ash)","amount":0.895,"unit":"kg","provider":"landfill / fertiliser"},{"stage":"Fractional distillation","direction":"input","flow":"aqueous phase","amount":14.462,"unit":"kg","provider":"from HTL"},{"stage":"Fractional distillation","direction":"output","flow":"clean water (COD < 250 mg/L)","amount":14.375,"unit":"kg","provider":"reuse"},{"stage":"Fractional distillation","direction":"output","flow":"off-gas / volatile organics","amount":0.087,"unit":"kg","provider":"emission"}],"case3_grid":[{"stage":"Transport","direction":"input","flow":"manure transport, 75 km","amount":1.2788,"unit":"t·km","provider":"Truck, EURO 5, diesel driven (GaBi)"},{"stage":"Pre-processing","direction":"input","flow":"wet cattle manure","amount":17.05,"unit":"kg","provider":"farm (burden-free waste)"},{"stage":"Pre-processing","direction":"input","flow":"process water","amount":1.057,"unit":"kg","provider":"DE: Water, desalinated (GaBi)"},{"stage":"Pre-processing","direction":"input","flow":"electricity","amount":0.2888,"unit":"kWh","provider":"DE: Electricity grid mix (GaBi)"},{"stage":"HTL","direction":"input","flow":"electricity","amount":0.452,"unit":"kWh","provider":"DE: Electricity grid mix (GaBi)"},{"stage":"HTL","direction":"input","flow":"heat","amount":5.01,"unit":"as printed (cal/hr)","provider":"EU: Thermal energy (GaBi, 'EU-23: Heat')"},{"stage":"HTL","direction":"output","flow":"bio-oil (biocrude)","amount":1.0,"unit":"kg","provider":"reference flow"},{"stage":"HTL","direction":"output","flow":"gas (CO2, CH4, N2, H2, H2S)","amount":1.75,"unit":"kg","provider":"emission / off-gas"},{"stage":"HTL","direction":"output","flow":"solids (char + ash)","amount":0.895,"unit":"kg","provider":"landfill / fertiliser"},{"stage":"Fractional distillation","direction":"input","flow":"aqueous phase","amount":14.462,"unit":"kg","provider":"from HTL"},{"stage":"Fractional distillation","direction":"output","flow":"clean water (COD < 250 mg/L)","amount":14.375,"unit":"kg","provider":"reuse"},{"stage":"Fractional distillation","direction":"output","flow":"off-gas / volatile organics","amount":0.087,"unit":"kg","provider":"emission"}]},"checks":[{"topic":"Mass balance","status":"ok","finding":"Inputs 88,500.00 kg/h = outputs 88,500.00 kg/h (Table 4.2.1 closes)."},{"topic":"Slurry concentration","status":"ok","finding":"Dry solids 17,700 kg/h in 88,500 kg/h = 20.0% (matches the 20 wt% target)."},{"topic":"Biocrude yield basis","status":"review","finding":"4,887.52 kg/h is 27.6% of the dry feed and 33.5% on a dry ash-free basis. Table 4.2.3 (27.61%, dry basis) is consistent; Section 4.2.2 and the conclusion call 27.7–27.9% 'daf'."},{"topic":"Daily biocrude output","status":"review","finding":"4,887.52 kg/h × 24 h = 117.3 t/day; Section 4.2.2 says 117,301 tonne/day."},{"topic":"Gas and biochar in the LCI","status":"review","finding":"Mass balance gives 1.75 kg gas and 0.895 kg solids per kg bio-oil (yields 48.3% and 24.7% of dry feed). Table 4.4 lists 0.64 kg gas, and its yield labels for gas (24.717%) and biochar (48.32%) are swapped."},{"topic":"Aqueous phase in the LCI","status":"review","finding":"Mass balance gives 14.46 kg aqueous phase per kg bio-oil; Table 4.4 lists 14.62 kg."},{"topic":"Case 3 input stream","status":"review","finding":"Table 4.2.1 lists 75,572.07 kg/h into fractional distillation. That is the LIQUIDS stream (biocrude + aqueous); the outputs 70,259.5 + 425.0 = 70,684.5 kg/h equal the aqueous phase alone."},{"topic":"Impact table columns","status":"review","finding":"In Table 4.1 some rows have the diesel-mix and truck values (and once the EP values) under swapped column headings, and case 2 grid FAETP diesel reads 0.00809 instead of 0.000809. With one consistent assignment every printed total is reproduced within 0.3%."},{"topic":"Grid GWP in the conclusion","status":"review","finding":"Table 4.1 gives 1.67 kg CO2 eq (case 1, grid); Section 4.6 says 1.76."},{"topic":"Biocrude HHV","status":"review","finding":"Aspen reports 39.1 MJ/kg; the thesis's Eq. 2 applied to the reported biocrude composition gives 27.7 MJ/kg. The composition also sums to 100.5%."},{"topic":"Raw manure HHV","status":"review","finding":"Eq. 2 on the dry ultimate analysis gives 16.6 MJ/kg (dry); Table 4.2.3 lists 7.9 MJ/kg without a basis."},{"topic":"DECOMPOS Fortran","status":"review","finding":"Table 3.2.1 has no sulfur line, so the yields sum to 0.9977 instead of 1; adding S = ULT(S) × FACT closes it (1.0000)."},{"topic":"HTL operating conditions","status":"review","finding":"Table 3.2.2 gives 350 °C and 100 bar; Section 3.2 runs the SECONDRY RGibbs reactor at 300 °C and 175 bar."},{"topic":"Aqueous-phase pumps","status":"review","finding":"Section 3.3 names pumps P60 (60 bar) and P80 (80 bar); the flowsheet labels them P80 and P160."},{"topic":"HTL heat input unit","status":"review","finding":"Table 4.4 gives heat as 5.01 'cal/hr' per kg bio-oil; the unit needs confirming."},{"topic":"Moisture in the slurry","status":"ok","finding":"Manure at 78.76% moisture needs 5,167 kg/h make-up water (≈1.06 kg per kg bio-oil, Table 4.4: 1.1 kg)."}],"kpis":[{"pillar":"Process performance","kpi":"Biocrude yield","unit":"% of dry feed","direction":"higher","definition":"Biocrude produced per unit of dry manure fed to the reactor.","formula":"m_biocrude / m_dry_feed","benchmark":"19.05–30.2% in manure HTL studies","benchmark_source":"Thesis Table 4.2.3 [34–36]","case1_wind":27.6131084492,"case1_wind_status":"pass","case1_grid":27.6131084492,"case1_grid_status":"pass","case2_wind":27.6131084492,"case2_wind_status":"pass","case2_grid":27.6131084492,"case2_grid_status":"pass","case3_wind":27.6131084492,"case3_wind_status":"pass","case3_grid":27.6131084492,"case3_grid_status":"pass"},{"pillar":"Process performance","kpi":"Biocrude output","unit":"t/day","direction":"higher","definition":"Biocrude production of the 2,000 t/day plant.","formula":"m_biocrude × 24 h","benchmark":"","benchmark_source":"","case1_wind":117.300484692,"case1_wind_status":"info","case1_grid":117.300484692,"case1_grid_status":"info","case2_wind":117.300484692,"case2_wind_status":"info","case2_grid":117.300484692,"case2_grid_status":"info","case3_wind":117.300484692,"case3_wind_status":"info","case3_grid":117.300484692,"case3_grid_status":"info"},{"pillar":"Process performance","kpi":"Biocrude heating value","unit":"MJ/kg","direction":"higher","definition":"Higher heating value of the biocrude from Aspen Plus.","formula":"Aspen Plus stream HHV","benchmark":"34.7–35.53 MJ/kg in manure HTL studies","benchmark_source":"Thesis Table 4.2.3 [34–36]","case1_wind":39.1,"case1_wind_status":"pass","case1_grid":39.1,"case1_grid_status":"pass","case2_wind":39.1,"case2_wind_status":"pass","case2_grid":39.1,"case2_grid_status":"pass","case3_wind":39.1,"case3_wind_status":"pass","case3_grid":39.1,"case3_grid_status":"pass"},{"pillar":"Process performance","kpi":"Energy recovery in biocrude","unit":"%","direction":"higher","definition":"Share of the dry manure's chemical energy that ends up in the biocrude.","formula":"m_biocrude × HHV_biocrude / (m_dry × HHV_dry manure)","benchmark":"Dry manure HHV 16.6 MJ/kg from thesis Eq. 2","benchmark_source":"Channiwala & Parikh (2002)","case1_wind":64.9602365411,"case1_wind_status":"info","case1_grid":64.9602365411,"case1_grid_status":"info","case2_wind":64.9602365411,"case2_wind_status":"info","case2_grid":64.9602365411,"case2_grid_status":"info","case3_wind":64.9602365411,"case3_wind_status":"info","case3_grid":64.9602365411,"case3_grid_status":"info"},{"pillar":"Process performance","kpi":"Carbon recovery in biocrude","unit":"% of feed C","direction":"higher","definition":"Share of the manure's carbon that ends up in the biocrude.","formula":"m_biocrude × C_biocrude / (m_dry × C_manure)","benchmark":"","benchmark_source":"","case1_wind":43.0648154228,"case1_wind_status":"info","case1_grid":43.0648154228,"case1_grid_status":"info","case2_wind":43.0648154228,"case2_wind_status":"info","case2_grid":43.0648154228,"case2_grid_status":"info","case3_wind":43.0648154228,"case3_wind_status":"info","case3_grid":43.0648154228,"case3_grid_status":"info"},{"pillar":"Process performance","kpi":"Nitrogen carried into biocrude","unit":"% of feed N","direction":"lower","definition":"Share of the manure's nitrogen left in the oil. Less nitrogen means less NOx and easier upgrading.","formula":"m_biocrude × N_biocrude / (m_dry × N_manure)","benchmark":"","benchmark_source":"","case1_wind":7.1949648776,"case1_wind_status":"info","case1_grid":7.1949648776,"case1_grid_status":"info","case2_wind":7.1949648776,"case2_wind_status":"info","case2_grid":7.1949648776,"case2_grid_status":"info","case3_wind":7.1949648776,"case3_wind_status":"info","case3_grid":7.1949648776,"case3_grid_status":"info"},{"pillar":"Climate & environment","kpi":"Climate impact per kg","unit":"kg CO₂ eq/kg","direction":"lower","definition":"Cradle-to-gate GWP100 per kg of bio-oil (CML 2001).","formula":"Σ contributions, GaBi","benchmark":"","benchmark_source":"","case1_wind":1.2578714,"case1_wind_status":"info","case1_grid":1.6701114,"case1_grid_status":"info","case2_wind":1.3618714,"case2_wind_status":"info","case2_grid":1.7781114,"case2_grid_status":"info","case3_wind":1.2743114,"case3_wind_status":"info","case3_grid":1.6847514,"case3_grid_status":"info"},{"pillar":"Climate & environment","kpi":"Climate impact per MJ","unit":"g CO₂ eq/MJ","direction":"lower","definition":"GWP per unit of fuel energy, so the oil can be compared with other fuels.","formula":"1000 × GWP / HHV","benchmark":"Fossil comparator 94 g CO₂ eq/MJ","benchmark_source":"RED II, Directive (EU) 2018/2001","case1_wind":32.1706240409,"case1_wind_status":"pass","case1_grid":42.7138465473,"case1_grid_status":"pass","case2_wind":34.8304705882,"case2_wind_status":"pass","case2_grid":45.4759948849,"case2_grid_status":"pass","case3_wind":32.591084399,"case3_wind_status":"pass","case3_grid":43.0882710997,"case3_grid_status":"pass"},{"pillar":"Climate & environment","kpi":"Indicative GHG saving vs fossil fuel","unit":"%","direction":"higher","definition":"Saving against the fossil comparator. Indicative only: cradle to gate, HHV basis, biogenic CO₂ counted.","formula":"1 − (g CO₂ eq/MJ) / 94","benchmark":"≥ 65% for new plants (pass), ≥ 50% for older plants (watch)","benchmark_source":"RED II Art. 29(10)","case1_wind":65.7759318714,"case1_wind_status":"pass","case1_grid":54.5597377156,"case1_grid_status":"watch","case2_wind":62.9463078849,"case2_wind_status":"watch","case2_grid":51.6212820373,"case2_grid_status":"watch","case3_wind":65.3286336181,"case3_wind_status":"pass","case3_grid":54.1614137237,"case3_grid_status":"watch"},{"pillar":"Climate & environment","kpi":"Conversion share of climate impact","unit":"% of GWP","direction":"info","definition":"How much of the GWP comes from the HTL conversion step: the hotspot to improve.","formula":"GWP_HTL / GWP_total","benchmark":"","benchmark_source":"","case1_wind":88.2443149594,"case1_wind_status":"info","case1_grid":66.4626323729,"case1_grid_status":"info","case2_wind":81.5054931031,"case2_wind_status":"info","case2_grid":62.4257850211,"case2_grid_status":"info","case3_wind":87.1058675297,"case3_wind_status":"info","case3_grid":65.8850914147,"case3_grid_status":"info"},{"pillar":"Climate & environment","kpi":"Acidification per kg","unit":"g SO₂ eq/kg","direction":"lower","definition":"Acidification potential per kg bio-oil (CML 2001).","formula":"Σ contributions, GaBi","benchmark":"Wind-electricity result of the same case","benchmark_source":"Thesis Table 4.1","case1_wind":0.35378055,"case1_wind_status":"pass","case1_grid":0.91348055,"case1_grid_status":"watch","case2_wind":0.35378055,"case2_wind_status":"pass","case2_grid":0.91348055,"case2_grid_status":"watch","case3_wind":0.35378055,"case3_wind_status":"pass","case3_grid":0.91348055,"case3_grid_status":"watch"},{"pillar":"Climate & environment","kpi":"Eutrophication per kg","unit":"g PO₄ eq/kg","direction":"lower","definition":"Eutrophication potential per kg bio-oil (CML 2001).","formula":"Σ contributions, GaBi","benchmark":"Wind-electricity result of the same case","benchmark_source":"Thesis Table 4.1","case1_wind":0.0851600726,"case1_wind_status":"pass","case1_grid":0.1867300726,"case1_grid_status":"watch","case2_wind":0.0851600726,"case2_wind_status":"pass","case2_grid":0.1867300726,"case2_grid_status":"watch","case3_wind":0.0851600726,"case3_wind_status":"pass","case3_grid":0.1867300726,"case3_grid_status":"watch"},{"pillar":"Climate & environment","kpi":"Freshwater ecotoxicity per kg","unit":"g DCB eq/kg","direction":"lower","definition":"Freshwater aquatic ecotoxicity per kg bio-oil (CML 2001).","formula":"Σ contributions, GaBi","benchmark":"Wind-electricity result of the same case","benchmark_source":"Thesis Table 4.1","case1_wind":0.887952513,"case1_wind_status":"pass","case1_grid":1.455952513,"case1_grid_status":"watch","case2_wind":0.887952513,"case2_wind_status":"pass","case2_grid":1.455952513,"case2_grid_status":"watch","case3_wind":0.887952513,"case3_wind_status":"pass","case3_grid":1.455952513,"case3_grid_status":"watch"},{"pillar":"Water & circularity","kpi":"Water recovered from the aqueous phase","unit":"%","direction":"higher","definition":"Share of the HTL aqueous phase returned as clean water.","formula":"m_clean water / m_aqueous","benchmark":"≥ 99%","benchmark_source":"Thesis Sections 3.3–3.4","case1_wind":0.0,"case1_wind_status":"fail","case1_grid":0.0,"case1_grid_status":"fail","case2_wind":99.0598508635,"case2_wind_status":"pass","case2_grid":99.0598508635,"case2_grid_status":"pass","case3_wind":99.3987370145,"case3_wind_status":"pass","case3_grid":99.3987370145,"case3_grid_status":"pass"},{"pillar":"Water & circularity","kpi":"COD of discharged water","unit":"mg/L","direction":"lower","definition":"Chemical oxygen demand of the water leaving the plant.","formula":"Aspen Plus / literature","benchmark":"< 250 mg/L for reuse; untreated HTL water 41,000–77,000 mg/L","benchmark_source":"Thesis Sections 3.4, 3.5.2 [103]","case1_wind":"untreated","case1_wind_status":"fail","case1_grid":"untreated","case1_grid_status":"fail","case2_wind":"< 250","case2_wind_status":"pass","case2_grid":"< 250","case2_grid_status":"pass","case3_wind":"< 250","case3_wind_status":"pass","case3_grid":"< 250","case3_grid_status":"pass"},{"pillar":"Water & circularity","kpi":"Dry feed turned into products","unit":"% of dry feed","direction":"higher","definition":"Biocrude plus biochar per unit of dry manure: the mass that leaves as a usable product.","formula":"(m_biocrude + m_solids) / m_dry","benchmark":"","benchmark_source":"","case1_wind":52.3244653698,"case1_wind_status":"info","case1_grid":52.3244653698,"case1_grid_status":"info","case2_wind":52.3244653698,"case2_wind_status":"info","case2_grid":52.3244653698,"case2_grid_status":"info","case3_wind":52.3244653698,"case3_wind_status":"info","case3_grid":52.3244653698,"case3_grid_status":"info"},{"pillar":"Water & circularity","kpi":"Value share of biocrude","unit":"% (economic allocation)","direction":"higher","definition":"Share of the product value carried by the biocrude.","formula":"price × mass, Table 4.4.2","benchmark":"Biocrude 400 €/t, biochar 200 €/t","benchmark_source":"Thesis Table 4.4.2","case1_wind":69.0,"case1_wind_status":"info","case1_grid":69.0,"case1_grid_status":"info","case2_wind":69.0,"case2_wind_status":"info","case2_grid":69.0,"case2_grid_status":"info","case3_wind":69.0,"case3_wind_status":"info","case3_grid":69.0,"case3_grid_status":"info"},{"pillar":"Water & circularity","kpi":"Blue water from pre-processing","unit":"% of blue water","direction":"info","definition":"Share of blue-water consumption that comes from pre-processing.","formula":"GaBi water footprint","benchmark":"","benchmark_source":"Thesis Table 4.5","case1_wind":89.7,"case1_wind_status":"info","case1_grid":39.64,"case1_grid_status":"info","case2_wind":89.7,"case2_wind_status":"info","case2_grid":39.64,"case2_grid_status":"info","case3_wind":89.7,"case3_wind_status":"info","case3_grid":39.64,"case3_grid_status":"info"},{"pillar":"Data quality","kpi":"Mass balance closure","unit":"%","direction":"target","definition":"Outputs divided by inputs in the Aspen Plus base case.","formula":"Σ m_out / Σ m_in","benchmark":"100 ± 0.1%","benchmark_source":"","case1_wind":100.0,"case1_wind_status":"pass","case1_grid":100.0,"case1_grid_status":"pass","case2_wind":100.0,"case2_wind_status":"pass","case2_grid":100.0,"case2_grid_status":"pass","case3_wind":100.0,"case3_wind_status":"pass","case3_grid":100.0,"case3_grid_status":"pass"},{"pillar":"Data quality","kpi":"Impact totals reproduced","unit":"max deviation, %","direction":"lower","definition":"Largest difference between recomputed and printed impact totals.","formula":"max |recomputed / printed − 1|","benchmark":"< 1%","benchmark_source":"","case1_wind":0.3400532387,"case1_wind_status":"pass","case1_grid":0.3400532387,"case1_grid_status":"pass","case2_wind":0.3400532387,"case2_wind_status":"pass","case2_grid":0.3400532387,"case2_grid_status":"pass","case3_wind":0.3400532387,"case3_wind_status":"pass","case3_grid":0.3400532387,"case3_grid_status":"pass"}]};
+const NS = 'http://www.w3.org/2000/svg';
+const svg = document.getElementById('plant');
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let caseKey = 'case1', elKey = 'wind', playing = !reduce;
+const int = (v) => new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format(v);
+const el = (tag, attrs, parent) => { const n = document.createElementNS(NS, tag); Object.entries(attrs).forEach(([k, v]) => n.setAttribute(k, v)); if (parent) parent.append(n); return n; };
+
+/* Flows: path, colour, kg/h, the story step whose node they leave. */
+function flows() {
+  const m = DATA.mass, t = DATA.treatment[caseKey];
+  const f = [
+    { id: 'road', d: 'M138 300 L285 300', color: 'var(--manure)', kg: m.manure, step: 1 },
+    { id: 'water', d: 'M330 70 L330 252', color: 'var(--water)', kg: m.water, step: 2 },
+    { id: 'slurry', d: 'M375 300 L566 300', color: 'var(--manure)', kg: m.manure + m.water, step: 3 },
+    { id: 'solids', d: 'M610 416 L610 500', color: 'var(--solids)', kg: m.solids, step: 4, out: ['Solids', 'char + ash', 526, 538] },
+    { id: 'mix', d: 'M654 300 L744 300', color: 'var(--manure)', kg: m.manure + m.water - m.solids, step: 4 },
+    { id: 'gas', d: 'M772 226 L772 110 L1040 110', color: 'var(--gas)', kg: m.gas, step: 5, out: ['Gas', '67% CO₂, 20% CH₄', 110] },
+    { id: 'biocrude', d: 'M800 270 L1040 270', color: 'var(--biocrude)', kg: m.biocrude, step: 5, out: ['Biocrude', '39.1 MJ/kg', 270], hero: true },
+  ];
+  if (caseKey === 'case1') {
+    f.push({ id: 'aq', d: 'M800 340 L1040 340', color: 'var(--water)', kg: m.aqueous, step: 5, out: ['Aqueous phase', 'untreated, COD 41–77 g/L', 340] });
+  } else {
+    f.push({ id: 'aq', d: 'M800 340 L840 340 L840 470 L884 470', color: 'var(--water)', kg: m.aqueous, step: 5, under: true },
+      { id: 'clean', d: 'M948 500 L990 500 L990 545 L1040 545', color: 'var(--water)', kg: t.water, step: 6, out: ['Clean water', 'COD < 250 mg/L', 545] },
+      { id: 'off', d: 'M916 414 L916 395 L1040 395', color: 'var(--offgas)', kg: t.gas, step: 6, out: [caseKey === 'case2' ? 'CHG off-gas' : 'Volatiles', caseKey === 'case2' ? 'CH₄ + CO₂' : 'mostly CO₂', 395] });
+  }
+  return f;
+}
+const width = (kg) => 3 + 16 * Math.sqrt(kg / 88500);
+
+let F = [], parts = [];
+function build() {
+  const pipes = document.getElementById('pipes'), pg = document.getElementById('particles'), outs = document.getElementById('outputs');
+  pipes.replaceChildren(); pg.replaceChildren(); outs.replaceChildren(); parts = [];
+  F = flows();
+  F.forEach((f) => {
+    const w = width(f.kg);
+    el('path', { d: f.d, class: 'pipe', 'stroke-width': w + 6 }, pipes);
+    f.path = el('path', { d: f.d, class: 'flowline', 'stroke-width': w, style: `stroke:${f.color}` }, pipes);
+    f.len = f.path.getTotalLength();
+    const n = Math.max(3, Math.round(Math.sqrt(f.kg) / 11));
+    for (let i = 0; i < n; i++) {
+      const r = Math.max(2.2, Math.min(4.4, w / 3.4));
+      const c = el('circle', { r, style: `fill:${f.color}` }, pg);
+      parts.push({ f, c, off: (i / n) * f.len, jit: (Math.random() - 0.5) * Math.max(0, w - 2 * r) });
+    }
+    if (f.out) {
+      const [name, note, y, ox] = f.out;
+      const g = el('g', { class: 'node', 'data-step': f.step }, outs);
+      const bx = ox || 1048, by = Math.min(y - 26, 590 - 58);
+      el('rect', { class: 'box', x: bx, y: by, width: 144, height: 52, rx: 9, style: f.hero ? 'stroke:var(--biocrude);stroke-width:2' : '' }, g);
+      el('rect', { x: bx + 10, y: by + 12, width: 10, height: 10, rx: 3, style: `fill:${f.color}` }, g);
+      const t1 = el('text', { class: 'lbl', x: bx + 26, y: by + 21 }, g); t1.textContent = name;
+      const t2 = el('text', { class: 'num', x: bx + 10, y: by + 40 }, g); t2.textContent = `${int(f.kg)} kg/h · ${note}`;
+      if (t2.getComputedTextLength() > 128) { t2.textContent = `${int(f.kg)} kg/h`; }
+    }
+  });
+  const treat = document.getElementById('treat');
+  treat.style.display = caseKey === 'case1' ? 'none' : '';
+  document.getElementById('column-trays').setAttribute('opacity', caseKey === 'case3' ? 1 : 0);
+  document.getElementById('treat-name').textContent = caseKey === 'case2' ? 'Gasifier' : 'Distillation';
+  document.getElementById('treat-cond').textContent = caseKey === 'case2' ? '550 °C · 200 bar' : '6 stages · RR 1';
+  place(0);
+  buildCO2();
+  setStep(step, true);
+}
+
+function place(dt) {
+  parts.forEach((p) => {
+    p.off = (p.off + dt * 70) % p.f.len;
+    const pt = p.f.path.getPointAtLength(p.off);
+    const pt2 = p.f.path.getPointAtLength(Math.min(p.off + 1, p.f.len));
+    const dx = pt2.x - pt.x, dy = pt2.y - pt.y, n = Math.hypot(dx, dy) || 1;
+    p.c.setAttribute('cx', pt.x - (dy / n) * p.jit);
+    p.c.setAttribute('cy', pt.y + (dx / n) * p.jit);
+  });
+  const road = F[0];
+  const tp = road.path.getPointAtLength(truckOff % road.len);
+  document.getElementById('truck').setAttribute('transform', `translate(${tp.x},${tp.y - 6})`);
+}
+let truckOff = 0;
+
+/* Story */
+const STEPS = [
+  ['Collect', 'Collect and transport', 'Wet cattle manure from farms in Kleve, Borken and Steinfurt is trucked 75 km to the plant. 2,000 t/day, almost four fifths of it water. Diesel trucks are the main source of acidification and eutrophication.', ['transport']],
+  ['Slurry', 'Make a pumpable slurry', 'Water is added until the slurry holds 20% dry matter. HTL needs no drying, because water is the reaction medium. That is why it suits wet feedstocks like manure.', ['water']],
+  ['Pressurise', 'Pump to 100 bar', 'Two high-pressure pumps take the slurry from 1 to 50 to 100 bar, so the water stays liquid at reaction temperature. Pumping and pre-processing use electricity, from wind or the German grid.', ['electricity']],
+  ['React', 'Hydrothermal liquefaction', 'At 350 °C and 100 bar, hot compressed water breaks the manure apart. This conversion step causes most of the climate impact: 1.11 kg CO₂ eq for every kilogram of bio-oil.', ['htl']],
+  ['Separate', 'Separate the products', 'A flash drum at 30 °C and 1 bar releases the gas. The rest splits into biocrude, solids and a large water-rich aqueous phase. Out of 88.5 t/h, only 4.9 t/h is biocrude.', []],
+  ['Clean', 'Treat the aqueous phase', 'Case 1 leaves the aqueous phase untreated. Case 2 gasifies its organics at 550 °C; case 3 distils them out. Both return about 99% as water with COD below 250 mg/L.', ['treatment']],
+  ['Result', 'The result per kilogram', '', ['minor']],
+];
+const PARTS = {
+  transport: ['Transport (truck + diesel)', 'var(--truck)'], water: ['Desalinated water', 'var(--gas)'], electricity: ['Electricity', 'var(--elec)'],
+  htl: ['HTL conversion', 'var(--biocrude)'], treatment: ['Water treatment', 'var(--treat)'], minor: ['Heat', 'var(--ink-3)'],
+};
+function co2Parts() {
+  const rows = DATA.lcia.filter((r) => r.case === caseKey && r.electricity === elKey && r.category === 'GWP');
+  const sum = (pred) => rows.filter(pred).reduce((s, r) => s + r.value, 0);
+  return {
+    transport: sum((r) => r.contributor.startsWith('Truck') || r.contributor.startsWith('Diesel')),
+    water: sum((r) => r.contributor === 'Desalinated water'),
+    electricity: sum((r) => r.contributor.startsWith('Electricity')),
+    htl: sum((r) => r.contributor === 'HTL conversion'),
+    treatment: sum((r) => r.contributor === 'Hydrothermal gasification' || r.contributor === 'Fractional distillation'),
+    minor: sum((r) => r.contributor === 'Heat'),
+  };
+}
+let co2 = {};
+function buildCO2() {
+  co2 = co2Parts();
+  const total = Object.values(co2).reduce((a, b) => a + b, 0);
+  const max = 1.85;
+  const track = document.getElementById('track');
+  track.replaceChildren(...Object.keys(PARTS).map((k) => {
+    const s = document.createElement('span'); s.dataset.k = k; s.style.background = PARTS[k][1]; s.dataset.w = (100 * co2[k] / max).toFixed(3); return s;
+  }));
+  document.getElementById('co2-legend').replaceChildren(...Object.keys(PARTS).filter((k) => co2[k] > 1e-5).map((k) => {
+    const li = document.createElement('li'); const sw = document.createElement('span'); sw.className = 'sw'; sw.style.background = PARTS[k][1];
+    const t = document.createElement('span'); t.textContent = PARTS[k][0] + ' ';
+    const b = document.createElement('b'); b.textContent = co2[k] >= 0.01 ? co2[k].toFixed(3) : co2[k].toExponential(1);
+    li.append(sw, t, b); return li;
+  }));
+  STEPS[6][2] = `Every kilogram of biocrude (39.1 MJ) carries ${total.toFixed(2)} kg CO₂ eq from farm to plant gate in this scenario, about ${Math.round(1000 * total / 39.1)} g per MJ. Case 3 on wind power is the best overall: clean water and the lowest impact of the treated cases.`;
+}
+let step = 1, stepT = 0;
+const STEP_SECONDS = 6;
+function setStep(n, instant) {
+  step = n;
+  const shown = new Set(STEPS.slice(0, n).flatMap((s) => s[3]));
+  let running = 0;
+  document.querySelectorAll('#track span').forEach((s) => {
+    const on = shown.has(s.dataset.k) || n === 7;
+    s.style.transition = instant ? 'none' : '';
+    s.style.width = on ? s.dataset.w + '%' : '0';
+    if (on) running += co2[s.dataset.k];
+  });
+  animateNumber(running, instant);
+  document.getElementById('cap-h').textContent = `${n} · ${STEPS[n - 1][1]}`;
+  document.getElementById('cap-p').textContent = STEPS[n - 1][2];
+  document.querySelectorAll('#steps button').forEach((b, i) => { if (i + 1 === n) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
+  svg.classList.toggle('dimmed', n < 7);
+  svg.querySelectorAll('.node').forEach((g) => g.classList.toggle('on', Number(g.dataset.step) === n));
+}
+let shownNum = 0, numAnim = null;
+function animateNumber(target, instant) {
+  const out = document.getElementById('co2-num');
+  if (instant || reduce) { shownNum = target; out.textContent = target.toFixed(2); return; }
+  const from = shownNum, t0 = performance.now();
+  cancelAnimationFrame(numAnim);
+  const tick = (t) => {
+    const k = Math.min(1, (t - t0) / 900), e = 1 - Math.pow(1 - k, 3);
+    shownNum = from + (target - from) * e; out.textContent = shownNum.toFixed(2);
+    if (k < 1) numAnim = requestAnimationFrame(tick);
+  };
+  numAnim = requestAnimationFrame(tick);
+}
+document.getElementById('steps').replaceChildren(...STEPS.map((s, i) => {
+  const li = document.createElement('li'); const b = document.createElement('button'); b.type = 'button';
+  const n = document.createElement('span'); n.textContent = i + 1; b.append(n, document.createTextNode(s[0]));
+  b.addEventListener('click', () => { stepT = 0; setStep(i + 1); });
+  li.append(b); return li;
+}));
+
+/* Loop */
+let last = performance.now();
+function frame(t) {
+  const dt = Math.min(0.05, (t - last) / 1000); last = t;
+  if (playing) {
+    truckOff += dt * 45;
+    place(dt);
+    stepT += dt;
+    if (stepT >= STEP_SECONDS) { stepT = 0; setStep(step % STEPS.length + 1); }
+    document.getElementById('prog').style.width = (100 * stepT / STEP_SECONDS) + '%';
+  }
+  requestAnimationFrame(frame);
+}
+const playBtn = document.getElementById('play');
+function setPlaying(p) {
+  playing = p; playBtn.textContent = p ? '❚❚ Pause' : '▶ Play'; playBtn.setAttribute('aria-label', p ? 'Pause animation' : 'Play animation');
+}
+playBtn.addEventListener('click', () => setPlaying(!playing));
+function seg(prefix, keys, on) {
+  keys.forEach((k) => document.getElementById(prefix + k).addEventListener('click', () => {
+    keys.forEach((j) => document.getElementById(prefix + j).setAttribute('aria-pressed', String(j === k))); on(k);
+  }));
+}
+seg('case-', ['case1', 'case2', 'case3'], (k) => { caseKey = k; build(); });
+seg('el-', ['wind', 'grid'], (k) => { elKey = k; buildCO2(); setStep(step, true); });
+build();
+setPlaying(playing);
+if (reduce) { setStep(7, true); }
+requestAnimationFrame(frame);
+</script>

@@ -1,6 +1,8 @@
 # Master thesis: Life cycle assessment of biocrude production from livestock manure in Germany via hydrothermal liquefaction
 
-**[Open the interactive findings page](https://malleshkomal.github.io/htl-manure-lca/)**
+**[Open the interactive findings page](https://malleshkomal.github.io/htl-manure-lca/)** · **[Watch the plant in motion](https://malleshkomal.github.io/htl-manure-lca/process.html)**
+
+[![Animated process diagram: manure is trucked to the plant, pumped to 100 bar, liquefied at 350 °C and separated into biocrude, gas, solids and clean water](results/charts/process_animation.gif)](https://malleshkomal.github.io/htl-manure-lca/process.html)
 
 My Master thesis rebuilt as reusable data, Python code and charts. It covers the Aspen Plus process models, life cycle inventory and life cycle assessment of **biocrude from cattle manure by hydrothermal liquefaction (HTL)** in Germany.
 
@@ -118,6 +120,7 @@ Rebuilding the thesis as code makes every number traceable. `run.py` writes [`re
 
 ```
 docs/index.html      interactive findings page (GitHub Pages)
+docs/process.html    animated process diagram
 site/                page template and build script
 aspen/               Aspen Plus flowsheets, block and stream tables, Fortran calculator
 data/thesis_tables/  every table of the thesis as CSV

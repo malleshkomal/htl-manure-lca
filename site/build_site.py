@@ -71,6 +71,17 @@ def build_images():
     return out
 
 
+def wrap(page, description):
+    """Turn a body-only page into a full HTML document for GitHub Pages."""
+    head, body = page.split('<div class="wrap"', 1)
+    return ("<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n"
+            "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n"
+            f"<meta name=\"description\" content=\"{description}\">\n"
+            + head.replace('<meta name="claude:viewport-fit-sides" content="cover">\n', "")
+            + "<style>body { margin: 0; } [hidden] { display: none !important; } img { max-width: 100%; }</style>\n"
+            "</head>\n<body>\n<div class=\"wrap\"" + body + "\n</body>\n</html>\n")
+
+
 def main():
     template = (SITE / "template.html").read_text(encoding="utf-8")
     data = json.dumps(build_data(), ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
@@ -87,6 +98,10 @@ def main():
             "</head>\n<body>\n<div class=\"wrap\"" + body + "\n</body>\n</html>\n")
     (ROOT / "docs").mkdir(exist_ok=True)
     (ROOT / "docs" / "index.html").write_text(full, encoding="utf-8")
+
+    proc = (SITE / "process_template.html").read_text(encoding="utf-8").replace("/*__DATA__*/", data)
+    (SITE / "process_artifact.html").write_text(proc, encoding="utf-8")
+    (ROOT / "docs" / "process.html").write_text(wrap(proc, "Animated process diagram of a hydrothermal liquefaction plant turning cattle manure into biocrude."), encoding="utf-8")
     print(f"wrote docs/index.html ({len(full) // 1024} KB) and site/artifact.html")
 
 

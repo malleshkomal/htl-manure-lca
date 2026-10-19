@@ -164,6 +164,8 @@ table.matrix thead th { text-align: center; white-space: nowrap; }
 table.matrix td.c { text-align: center; border-radius: 5px; padding: 7px 4px; font: 600 12px var(--mono); min-width: 4.2rem; }
 table.matrix td.c.pass { background: var(--ok-bg); color: var(--ok); } table.matrix td.c.watch { background: var(--warn-bg); color: var(--warn); }
 table.matrix td.c.fail { background: var(--bad-bg); color: var(--bad); }
+.motion { justify-self: start; font-weight: 600; font-size: 14px; text-decoration: none; border: 1px solid var(--accent); border-radius: 999px; padding: 8px 14px; }
+.motion:hover { background: var(--accent); color: var(--paper); }
 .colophon { font-size: 13px; color: var(--ink-2); border-top: 1px solid var(--rule); padding-top: 20px; display: grid; gap: 6px; max-width: 70ch; }
 @media (max-width: 560px) { .checks li { grid-template-columns: 1fr; gap: 6px; } .figure { padding: 16px; } }
 @media (prefers-reduced-motion: no-preference) {
@@ -199,6 +201,7 @@ table.matrix td.c.fail { background: var(--bad-bg); color: var(--bad); }
     </div>
     <p class="lede" id="lede">—</p>
     <div class="figures" id="kpis"></div>
+    <a class="motion" href="https://malleshkomal.github.io/htl-manure-lca/process.html">▶ Watch the plant in motion: animated process diagram</a>
   </header>
 
   <section class="chapter" id="kpi">
