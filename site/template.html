@@ -1,0 +1,854 @@
+<title>Biocrude from Cattle Manure</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+/* Layout: a thesis read as a website. Title page, then chapters numbered as in the thesis,
+   each a short argument with one interactive figure; contents rail on wide screens. */
+:root {
+  --paper: #f4f6f3;        /* cool, faintly green paper */
+  --sheet: #ffffff;        /* figure cards */
+  --ink: #17201b;
+  --ink-2: #4c5650;
+  --ink-3: #78817b;
+  --rule: #dfe4df;
+  --grid: #e9ece8;
+  --accent: #1f6f5c;       /* deep process-water green, for links and focus */
+  --c-blue: #2a78d6; --c-orange: #eb6834; --c-aqua: #1baf7a; --c-yellow: #eda100;
+  --c-magenta: #e87ba4; --c-violet: #6250d6; --c-muted: #b4b6ae; --c-dark: #8b8f88;
+  --ok: #1b7f4b; --warn: #a35f00;
+  --tip-bg: #ffffff; --tip-shadow: 0 8px 24px rgba(23, 32, 27, .14);
+  --display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --sans: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #121614; --sheet: #1a201d; --ink: #e9eeea; --ink-2: #aeb7b1; --ink-3: #828b85;
+    --rule: #2b332f; --grid: #242b27; --accent: #5cc4a6;
+    --c-blue: #3987e5; --c-orange: #d95926; --c-aqua: #199e70; --c-yellow: #c98500;
+    --c-magenta: #d55181; --c-violet: #9085e9; --c-muted: #5d635f; --c-dark: #7d847f;
+    --ok: #4cc38a; --warn: #e6a23c; --tip-bg: #222a26; --tip-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #121614; --sheet: #1a201d; --ink: #e9eeea; --ink-2: #aeb7b1; --ink-3: #828b85;
+  --rule: #2b332f; --grid: #242b27; --accent: #5cc4a6;
+  --c-blue: #3987e5; --c-orange: #d95926; --c-aqua: #199e70; --c-yellow: #c98500;
+  --c-magenta: #d55181; --c-violet: #9085e9; --c-muted: #5d635f; --c-dark: #7d847f;
+  --ok: #4cc38a; --warn: #e6a23c; --tip-bg: #222a26; --tip-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+}
+body { background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.55; }
+.wrap { position: relative; max-width: 74rem; margin-inline: auto; padding-block: 48px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 56px; }
+.wrap > :not(.toc) { grid-column: 1 / -1; }
+@media (min-width: 1080px) { .wrap { grid-template-columns: 13rem minmax(0, 1fr); column-gap: 48px; } .wrap > :not(.toc) { grid-column: 2; } }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+
+/* contents rail */
+.toc { display: none; grid-column: 1; grid-row: 1 / span 20; }
+@media (min-width: 1080px) { .toc { display: block; } }
+.toc nav { position: sticky; top: calc(24px + env(safe-area-inset-top, 0px)); display: grid; gap: 2px; font-size: 13px; }
+.toc .toc-h { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 8px; }
+.toc a { color: var(--ink-2); text-decoration: none; padding: 5px 0 5px 10px; border-left: 2px solid var(--rule); display: flex; gap: 8px; }
+.toc a span { font-family: var(--mono); color: var(--ink-3); min-width: 2.2em; }
+.toc a:hover, .toc a.on { color: var(--ink); border-left-color: var(--accent); }
+
+/* title page */
+.title-page { display: grid; gap: 22px; padding-bottom: 36px; border-bottom: 1px solid var(--rule); }
+.kicker { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.title-page h1 { font-family: var(--display); font-weight: 500; font-size: clamp(32px, 5.4vw, 56px); line-height: 1.05; letter-spacing: -.01em; max-width: 20ch; }
+.title-page h1 em { font-style: italic; font-weight: 400; color: var(--ink-2); }
+.byline { display: flex; flex-wrap: wrap; gap: 8px 28px; font-size: 14px; color: var(--ink-2); }
+.byline b { color: var(--ink); font-weight: 600; }
+.lede { font-size: 19px; line-height: 1.55; max-width: 62ch; margin: 0; color: var(--ink); }
+.figures { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr)); gap: 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.fig-num { padding: 18px 18px 18px 0; display: grid; gap: 4px; align-content: start; }
+.fig-num + .fig-num { padding-left: 18px; border-left: 1px solid var(--rule); }
+@media (max-width: 560px) { .fig-num + .fig-num { border-left: 0; padding-left: 0; border-top: 1px solid var(--rule); } }
+.fig-num .v { font-family: var(--display); font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; }
+.fig-num .v small { font-family: var(--sans); font-size: 14px; color: var(--ink-2); margin-left: 4px; }
+.fig-num .l { font-size: 13px; color: var(--ink-2); line-height: 1.4; }
+
+/* chapters */
+.chapter { display: grid; gap: 18px; scroll-margin-top: 24px; }
+.chapter > header { display: grid; gap: 8px; max-width: 64ch; }
+.sec { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; color: var(--ink-3); }
+.chapter h2 { font-family: var(--display); font-weight: 500; font-size: clamp(26px, 3.4vw, 34px); line-height: 1.15; }
+.chapter header p { margin: 0; color: var(--ink-2); }
+.figure { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--radius); padding: 20px; display: grid; gap: 14px; min-width: 0; }
+.figure-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.figure h3 { font-size: 16px; font-weight: 600; }
+.cap { margin: 0; font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+.cap b { color: var(--ink); }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: 18px; }
+.seg { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 3px; background: var(--paper); border: 1px solid var(--rule); border-radius: 999px; }
+.seg button { font: 500 13px/1 var(--sans); color: var(--ink-2); background: transparent; border: 0; border-radius: 999px; padding: 7px 12px; cursor: pointer; }
+.seg button:hover { color: var(--ink); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; }
+.chart { position: relative; min-width: 0; }
+.scroll { overflow-x: auto; }
+.chart svg { display: block; overflow: visible; }
+.chart text { font-family: var(--sans); }
+.t-lbl { fill: var(--ink); font-size: 12.5px; }
+.t-sub { fill: var(--ink-2); font-size: 12px; }
+.t-num { fill: var(--ink); font-size: 12px; font-family: var(--mono) !important; }
+.t-axis { fill: var(--ink-3); font-size: 11px; font-family: var(--mono) !important; }
+.halo { paint-order: stroke; stroke: var(--sheet); stroke-width: 4px; stroke-linejoin: round; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; list-style: none; margin: 0; padding: 0; font-size: 12.5px; color: var(--ink-2); }
+.legend li { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex: none; }
+.mark { transition: opacity .15s; }
+.dim .mark { opacity: .25; }
+.dim .mark.hot { opacity: 1; }
+
+.tip { position: absolute; z-index: 5; pointer-events: none; background: var(--tip-bg); border: 1px solid var(--rule); border-radius: 8px; box-shadow: var(--tip-shadow); padding: 8px 10px; font-size: 12.5px; display: grid; gap: 3px; max-width: 17rem; }
+.tip .h { color: var(--ink-2); }
+.tip .r { display: flex; align-items: center; gap: 6px; }
+.tip .r b { margin-left: auto; padding-left: 12px; font-family: var(--mono); font-weight: 500; }
+
+table.data { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+table.data th { text-align: left; font-weight: 600; font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; padding: 8px 10px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+table.data td { padding: 8px 10px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+table.data td.n { text-align: right; font-family: var(--mono); white-space: nowrap; }
+table.data tr.stage td { font-weight: 600; color: var(--ink-2); background: var(--paper); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+select { font: 500 13px var(--sans); color: var(--ink); background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; padding: 7px 10px; }
+
+.flowsheet img { width: 100%; height: auto; border-radius: 6px; border: 1px solid var(--rule); background: #fcfcfb; }
+.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.checks li { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 14px; padding: 12px 0; border-top: 1px solid var(--grid); font-size: 14px; }
+.checks li:first-child { border-top: 0; }
+.checks .topic { font-weight: 600; display: block; margin-bottom: 2px; }
+.pill { justify-self: start; align-self: start; font: 500 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .06em; border: 1px solid currentColor; border-radius: 999px; padding: 4px 8px; }
+.pill.ok { color: var(--ok); } .pill.review { color: var(--warn); }
+.colophon { font-size: 13px; color: var(--ink-2); border-top: 1px solid var(--rule); padding-top: 20px; display: grid; gap: 6px; max-width: 70ch; }
+@media (max-width: 560px) { .checks li { grid-template-columns: 1fr; gap: 6px; } .figure { padding: 16px; } }
+@media (prefers-reduced-motion: no-preference) {
+  .grow { animation: grow .7s cubic-bezier(.2, .7, .2, 1) both; transform-box: fill-box; transform-origin: left center; }
+  @keyframes grow { from { transform: scaleX(0); } }
+}
+</style>
+
+<div class="wrap" id="top">
+  <aside class="toc" aria-label="Contents">
+    <nav>
+      <div class="toc-h">Contents</div>
+      <a href="#process"><span>3.2</span>Process model</a>
+      <a href="#mass"><span>4.2</span>Mass balance</a>
+      <a href="#feedstock"><span>4.1</span>Manure &amp; biocrude</a>
+      <a href="#impacts"><span>4.4</span>Impacts</a>
+      <a href="#electricity"><span>4.4</span>Wind vs grid</a>
+      <a href="#emissions"><span>4.3</span>Emissions</a>
+      <a href="#allocation"><span>4.4.2</span>Allocation &amp; water</a>
+      <a href="#inventory"><span>3.5.2</span>Inventory</a>
+      <a href="#checks"><span>A</span>Data checks</a>
+    </nav>
+  </aside>
+
+  <header class="title-page">
+    <div class="kicker">Master thesis · TU Bergakademie Freiberg · 2022</div>
+    <h1>Life cycle assessment of biocrude production from livestock manure in Germany <em>via hydrothermal liquefaction</em></h1>
+    <div class="byline">
+      <span><b>Komal Mallesh Chougule</b></span>
+      <span>MSc Groundwater Management</span>
+      <span>Supervisors: Prof. Dr. J. Bongaerts · Dr. M. Alherbawi</span>
+    </div>
+    <p class="lede" id="lede">—</p>
+    <div class="figures" id="kpis"></div>
+  </header>
+
+  <section class="chapter" id="process">
+    <header>
+      <div class="sec">3.2 – 3.4 · Aspen Plus process models</div>
+      <h2>Three ways to run the plant</h2>
+      <p>Wet manure is pumped as a slurry through hot, pressurised water and breaks down into biocrude, gas, solids and an aqueous phase. Cases 2 and 3 add a step that cleans the aqueous phase.</p>
+    </header>
+    <div class="figure flowsheet">
+      <div class="figure-top">
+        <h3 id="fs-title">Case 1</h3>
+        <div class="seg" role="group" aria-label="Flowsheet">
+          <button type="button" id="fs-case1" aria-pressed="true">Case 1 · HTL</button>
+          <button type="button" id="fs-case2" aria-pressed="false">Case 2 · + HTG</button>
+          <button type="button" id="fs-case3" aria-pressed="false">Case 3 · + FD</button>
+        </div>
+      </div>
+      <div class="scroll"><img id="fs-img" alt="Aspen Plus flowsheet" src=""></div>
+      <p class="cap" id="fs-cap"></p>
+    </div>
+  </section>
+
+  <section class="chapter" id="mass">
+    <header>
+      <div class="sec">4.2.1 · Mass balance</div>
+      <h2>Where 88.5 tonnes an hour of slurry ends up</h2>
+      <p>Four fifths of the slurry leaves as water-rich aqueous phase. Treating that stream (cases 2 and 3) returns about 99% of it as clean water with a COD below 250 mg/L.</p>
+    </header>
+    <div class="figure">
+      <div class="figure-top">
+        <h3>Mass flows, kg/h</h3>
+        <div class="seg" role="group" aria-label="Case">
+          <button type="button" id="mb-case1" aria-pressed="true">Case 1</button>
+          <button type="button" id="mb-case2" aria-pressed="false">Case 2 · HTG</button>
+          <button type="button" id="mb-case3" aria-pressed="false">Case 3 · FD</button>
+        </div>
+      </div>
+      <div class="scroll"><div class="chart" id="sankey"></div></div>
+      <p class="cap">Ribbon width is proportional to mass. 2,000 t/day of wet manure (78.76% moisture) mixed to a 20 wt% solids slurry. Hover a ribbon for its flow.</p>
+    </div>
+    <div class="two">
+      <div class="figure">
+        <h3>Product yields from the dry manure</h3>
+        <div class="chart" id="yields"></div>
+        <p class="cap">% of 17,700 kg/h dry feed. They add up to just over 100% because some water reacts into the products.</p>
+      </div>
+      <div class="figure">
+        <h3>What the gas is made of</h3>
+        <div class="chart" id="offgas"></div>
+        <p class="cap">HTL off-gas composition, wt%.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter" id="feedstock">
+    <header>
+      <div class="sec">4.1 · 4.2.2 · Characteristics</div>
+      <h2>From wet manure to an energy-dense oil</h2>
+      <p>HTL concentrates carbon and hydrogen and strips out nitrogen. The biocrude's heating value of 39.1 MJ/kg is in line with other manure biocrudes.</p>
+    </header>
+    <div class="two">
+      <div class="figure">
+        <h3>Elemental composition, raw manure → biocrude</h3>
+        <div class="chart" id="dumbbell"></div>
+        <ul class="legend" id="db-legend"></ul>
+      </div>
+      <div class="figure">
+        <div class="figure-top">
+          <h3>Cattle manure vs other manures</h3>
+          <div class="seg" role="group" aria-label="Analysis">
+            <button type="button" id="fd-el" aria-pressed="true">Elemental</button>
+            <button type="button" id="fd-px" aria-pressed="false">Proximate</button>
+          </div>
+        </div>
+        <div class="chart" id="feed"></div>
+        <ul class="legend" id="feed-legend"></ul>
+      </div>
+    </div>
+    <div class="figure">
+      <h3>Biocrude heating value compared with the literature</h3>
+      <div class="chart" id="hhv"></div>
+      <p class="cap">Higher heating value, MJ/kg. The raw manure is shown for scale.</p>
+    </div>
+  </section>
+
+  <section class="chapter" id="impacts">
+    <header>
+      <div class="sec">4.4 · Life cycle impact assessment · CML 2001</div>
+      <h2>The conversion step drives the climate impact</h2>
+      <p>Per kilogram of bio-oil, cradle to gate. Switch the impact category to see how transport and electricity take over once climate change is set aside.</p>
+    </header>
+    <div class="figure">
+      <div class="figure-top">
+        <div class="controls">
+          <div class="seg" role="group" aria-label="Impact category">
+            <button type="button" id="im-GWP" aria-pressed="true">Climate</button>
+            <button type="button" id="im-AP" aria-pressed="false">Acidification</button>
+            <button type="button" id="im-EP" aria-pressed="false">Eutrophication</button>
+            <button type="button" id="im-FAETP" aria-pressed="false">Freshwater toxicity</button>
+          </div>
+          <div class="seg" role="group" aria-label="Scale">
+            <button type="button" id="im-abs" aria-pressed="true">Amount</button>
+            <button type="button" id="im-pct" aria-pressed="false">Share</button>
+          </div>
+        </div>
+      </div>
+      <h3 id="im-title">—</h3>
+      <div class="chart" id="impact"></div>
+      <ul class="legend" id="im-legend"></ul>
+    </div>
+  </section>
+
+  <section class="chapter" id="electricity">
+    <header>
+      <div class="sec">4.4.1 – 4.4.5 · Electricity source</div>
+      <h2>Wind power lowers every impact</h2>
+      <p>The same plant on German grid electricity instead of wind. Each line starts at the wind result and ends at the grid result, as a multiple of the wind value.</p>
+    </header>
+    <div class="figure">
+      <div class="chart" id="multiplier"></div>
+      <ul class="legend" id="mu-legend"></ul>
+      <p class="cap">Case 1. Cases 2 and 3 have the same AP, EP and toxicity results.</p>
+    </div>
+  </section>
+
+  <section class="chapter" id="emissions">
+    <header>
+      <div class="sec">4.3.1 · Air emissions</div>
+      <h2>Fossil CO₂ outweighs everything else a thousand times</h2>
+      <p>Air emissions per kilogram of bio-oil for the base case on wind electricity. Bars are on a logarithmic scale: each gridline is ten times the one before.</p>
+    </header>
+    <div class="figure">
+      <div class="chart" id="air"></div>
+    </div>
+  </section>
+
+  <section class="chapter" id="allocation">
+    <header>
+      <div class="sec">4.4.2 · 4.5 · Allocation and water footprint</div>
+      <h2>Who carries the burden, and how much water it takes</h2>
+    </header>
+    <div class="two">
+      <div class="figure">
+        <h3>Allocating impacts between co-products</h3>
+        <div class="chart" id="alloc"></div>
+        <p class="cap">Prices: biocrude 400 €/t, biochar 200 €/t, wastewater 1.64 €/m³.</p>
+      </div>
+      <div class="figure">
+        <h3>Water use of pre-processing</h3>
+        <div class="chart" id="water"></div>
+        <ul class="legend" id="water-legend"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter" id="inventory">
+    <header>
+      <div class="sec">3.5.2 · Life cycle inventory</div>
+      <h2>Inventory per kilogram of bio-oil</h2>
+      <p>Recomputed from the Aspen Plus mass balance for each scenario, with the GaBi background process for every input.</p>
+    </header>
+    <div class="figure">
+      <div class="figure-top">
+        <label class="cap" for="lci-pick">Scenario&nbsp;
+          <select id="lci-pick"></select>
+        </label>
+      </div>
+      <div class="scroll">
+        <table class="data" id="lci"><thead><tr><th>Flow</th><th>Direction</th><th style="text-align:right">Amount</th><th>Unit</th><th>Background process</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter" id="checks">
+    <header>
+      <div class="sec">Appendix · Data checks</div>
+      <h2>Checking the numbers</h2>
+      <p>Rebuilding the thesis as code makes every figure traceable. These checks compare the tables, the text and the mass balance. Items marked "review" are worth correcting in a future paper.</p>
+    </header>
+    <div class="figure">
+      <ul class="checks" id="check-list"></ul>
+    </div>
+  </section>
+
+  <footer class="colophon">
+    <div>K. M. Chougule, <i>Life cycle assessment of Biocrude Production from Livestock manure in Germany via Hydrothermal Liquefaction</i>, MSc thesis, TU Bergakademie Freiberg, 2022. Process model in Aspen Plus; LCA in GaBi 9.1 with CML 2001 (Jan 2016).</div>
+    <div>Data and figures: CC BY 4.0. Code and data: <a href="https://github.com/malleshkomal/htl-manure-lca">github.com/malleshkomal/htl-manure-lca</a></div>
+  </footer>
+  <div class="tip" id="tip" hidden></div>
+</div>
+
+<script>
+const DATA = /*__DATA__*/;
+const IMG = /*__IMG__*/;
+
+const C = {
+  blue: 'var(--c-blue)', orange: 'var(--c-orange)', aqua: 'var(--c-aqua)', yellow: 'var(--c-yellow)',
+  magenta: 'var(--c-magenta)', violet: 'var(--c-violet)', muted: 'var(--c-muted)', dark: 'var(--c-dark)', ink: 'var(--ink)',
+};
+const CONTRIB = [
+  ['HTL conversion', C.blue], ['Electricity', C.orange], ['Truck (EURO 5)', C.aqua], ['Diesel mix at refinery', C.yellow],
+  ['Hydrothermal gasification', C.violet], ['Fractional distillation', C.magenta], ['Desalinated water', C.muted], ['Heat', C.dark],
+];
+const CAT = {
+  GWP: { name: 'Global warming potential', unit: 'kg CO₂ eq', scale: 1, unitShort: 'kg CO₂ eq' },
+  AP: { name: 'Acidification potential', unit: 'kg SO₂ eq', scale: 1000, unitShort: 'g SO₂ eq' },
+  EP: { name: 'Eutrophication potential', unit: 'kg PO₄ eq', scale: 1000, unitShort: 'g PO₄ eq' },
+  FAETP: { name: 'Freshwater aquatic ecotoxicity', unit: 'kg DCB eq', scale: 1000, unitShort: 'g DCB eq' },
+};
+const SCEN = [['case1', 'wind'], ['case1', 'grid'], ['case2', 'wind'], ['case2', 'grid'], ['case3', 'wind'], ['case3', 'grid']];
+const CASE_NAME = { case1: 'Case 1 · HTL', case2: 'Case 2 · HTL + HTG', case3: 'Case 3 · HTL + FD' };
+const EL_NAME = { wind: 'wind', grid: 'grid mix' };
+
+const fmt = (v, d = 1) => new Intl.NumberFormat('en', { minimumFractionDigits: d, maximumFractionDigits: d }).format(v);
+const int = (v) => new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format(v);
+const page = document.querySelector('.wrap');
+const tip = document.getElementById('tip');
+function showTip(event, head, rows) {
+  tip.replaceChildren();
+  const h = document.createElement('div'); h.className = 'h'; h.textContent = head; tip.append(h);
+  rows.forEach(([name, value, color]) => {
+    const r = document.createElement('div'); r.className = 'r';
+    if (color) { const s = document.createElement('span'); s.className = 'sw'; s.style.background = color; r.append(s); }
+    const n = document.createElement('span'); n.textContent = name;
+    const b = document.createElement('b'); b.textContent = value;
+    r.append(n, b); tip.append(r);
+  });
+  tip.hidden = false;
+  const box = page.getBoundingClientRect();
+  let x = event.clientX - box.left + 14, y = event.clientY - box.top + 14;
+  if (x + tip.offsetWidth > box.width) x = event.clientX - box.left - tip.offsetWidth - 14;
+  if (event.clientY + 14 + tip.offsetHeight > window.innerHeight) y = event.clientY - box.top - tip.offsetHeight - 14;
+  tip.style.left = Math.max(0, x) + 'px'; tip.style.top = y + 'px';
+}
+const hideTip = () => { tip.hidden = true; };
+function legend(ul, items) {
+  ul.replaceChildren(...items.map(([n, c]) => {
+    const li = document.createElement('li'); const s = document.createElement('span'); s.className = 'sw'; s.style.background = c;
+    const t = document.createElement('span'); t.textContent = n; li.append(s, t); return li;
+  }));
+}
+function measure(svg, texts, cls) {
+  const t = svg.append('text').attr('class', cls);
+  const w = d3.max(texts, (s) => { t.text(s); return t.node().getComputedTextLength(); }) || 0;
+  t.remove(); return w;
+}
+function segmented(prefix, keys, onPick) {
+  keys.forEach((k) => document.getElementById(prefix + k).addEventListener('click', () => {
+    keys.forEach((j) => document.getElementById(prefix + j).setAttribute('aria-pressed', String(j === k)));
+    onPick(k);
+  }));
+}
+const played = new Set();
+const grow = (key) => { if (played.has(key)) return null; played.add(key); return 'grow'; };
+
+/* ---------- title page ---------- */
+function drawTitle() {
+  const m = DATA.mass, t = DATA.totals;
+  document.getElementById('lede').textContent =
+    `Two thousand tonnes of wet cattle manure a day become ${fmt(m.biocrude * 24 / 1000)} t of biocrude, a yield of ${fmt(m.yieldDry)}% of the dry matter. ` +
+    `Each kilogram carries ${fmt(t.case1.wind.GWP, 2)} kg CO₂ eq with wind power and ${fmt(t.case1.grid.GWP, 2)} kg on the German grid, ` +
+    `and ${int(DATA.shareHTL)}% of that comes from the conversion step itself.`;
+  const k = [
+    [fmt(m.biocrude * 24 / 1000), 't/day', 'biocrude from 2,000 t/day of wet manure'],
+    [fmt(m.yieldDry), '%', 'biocrude yield on dry manure'],
+    ['39.1', 'MJ/kg', 'biocrude heating value (Aspen Plus)'],
+    [fmt(t.case1.wind.GWP, 2), 'kg CO₂ eq', 'per kg bio-oil, wind electricity'],
+  ];
+  document.getElementById('kpis').replaceChildren(...k.map(([v, u, l]) => {
+    const d = document.createElement('div'); d.className = 'fig-num';
+    const vv = document.createElement('div'); vv.className = 'v'; vv.textContent = v;
+    const s = document.createElement('small'); s.textContent = u; vv.append(s);
+    const ll = document.createElement('div'); ll.className = 'l'; ll.textContent = l;
+    d.append(vv, ll); return d;
+  }));
+}
+
+/* ---------- flowsheets ---------- */
+const FS = {
+  case1: ['Case 1 · HTL base case', 'Manure is decomposed (DECOMPOS, RYield), mixed with pressurised water, converted in HYDROLYS (RYield) and SECONDAR (RGibbs), then flashed at 30 °C, 1 bar and separated into biocrude and an untreated aqueous phase.'],
+  case2: ['Case 2 · HTL + catalytic hydrothermal gasification', 'The aqueous phase is pumped and gasified at 550 °C and 200 bar (RGibbs), turning dissolved organics into CH₄, CO₂ and NH₃. A flash separates the off-gas from organic-free water (99.9% COD removal).'],
+  case3: ['Case 3 · HTL + fractional distillation', 'The aqueous phase (COD 650 mg/L) is heated to 30 °C and fed to a RadFrac column with 6 theoretical stages and reflux ratio 1. The bottoms are 99.974 mol% water with COD below 250 mg/L.'],
+};
+function showFlowsheet(c) {
+  document.getElementById('fs-title').textContent = FS[c][0];
+  document.getElementById('fs-cap').textContent = FS[c][1];
+  const img = document.getElementById('fs-img');
+  img.src = IMG[c]; img.alt = 'Aspen Plus flowsheet, ' + FS[c][0];
+}
+
+/* ---------- sankey ---------- */
+let mbCase = 'case1';
+function drawSankey() {
+  const el = document.getElementById('sankey');
+  const m = DATA.mass, tr = DATA.treatment;
+  const W = Math.max(el.parentElement.clientWidth, 680), H = 380;
+  const cols = mbCase === 'case1' ? 3 : 4;
+  const nodes = [
+    { id: 'manure', name: 'Wet manure', v: m.manure, col: 0, color: C.dark },
+    { id: 'water', name: 'Make-up water', v: m.water, col: 0, color: C.aqua },
+    { id: 'htl', name: 'HTL reactor', v: m.manure + m.water, col: 1, color: C.ink },
+    { id: 'aqueous', name: 'Aqueous phase', v: m.aqueous, col: 2, color: C.aqua },
+    { id: 'gas', name: 'Gas', v: m.gas, col: 2, color: C.muted },
+    { id: 'biocrude', name: 'Biocrude', v: m.biocrude, col: 2, color: C.blue },
+    { id: 'solids', name: 'Solids', v: m.solids, col: 2, color: C.yellow },
+  ];
+  const links = [['manure', 'htl', m.manure, C.dark], ['water', 'htl', m.water, C.aqua], ['htl', 'aqueous', m.aqueous, C.aqua],
+    ['htl', 'gas', m.gas, C.muted], ['htl', 'biocrude', m.biocrude, C.blue], ['htl', 'solids', m.solids, C.yellow]];
+  if (mbCase !== 'case1') {
+    const t = tr[mbCase];
+    nodes.push({ id: 'clean', name: 'Clean water', v: t.water, col: 3, color: C.aqua },
+      { id: 'off', name: mbCase === 'case2' ? 'CHG off-gas' : 'Volatile organics', v: t.gas, col: 3, color: C.violet });
+    links.push(['aqueous', 'clean', t.water, C.aqua], ['aqueous', 'off', t.gas, C.violet]);
+  }
+  const byId = Object.fromEntries(nodes.map((n) => [n.id, n]));
+  const top = 10, bottom = 10, pad = 22, nw = 10, right = 210, left = 120;
+  const k = d3.min(d3.range(cols), (c) => {
+    const ns = nodes.filter((n) => n.col === c);
+    return (H - top - bottom - pad * (ns.length - 1)) / d3.sum(ns, (n) => n.v);
+  });
+  const x = (c) => left + c * (W - left - right - nw) / (cols - 1);
+  d3.range(cols).forEach((c) => {
+    const ns = nodes.filter((n) => n.col === c);
+    let y = top + (H - top - bottom - (d3.sum(ns, (n) => n.v * k) + pad * (ns.length - 1))) / 2;
+    ns.forEach((n) => { n.x = x(c); n.y = y; n.h = Math.max(n.v * k, 2); n.out = n.y; n.in = n.y; y += n.h + pad; });
+  });
+  el.replaceChildren();
+  const svg = d3.select(el).append('svg').attr('width', W).attr('height', H).attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img')
+    .attr('aria-label', 'Mass flows through the HTL plant in kg per hour');
+  const g = svg.append('g');
+  const paths = links.map(([s, t, v, color]) => {
+    const a = byId[s], b = byId[t], w = v * k;
+    const y0 = a.out + w / 2, y1 = b.in + w / 2; a.out += w; b.in += w;
+    const x0 = a.x + nw, x1 = b.x, xm = (x0 + x1) / 2;
+    return { s: a.name, t: b.name, v, color, w, d: `M${x0},${y0}C${xm},${y0} ${xm},${y1} ${x1},${y1}` };
+  });
+  const sel = g.selectAll('path').data(paths).join('path').attr('class', 'mark').attr('d', (p) => p.d).attr('fill', 'none')
+    .style('stroke', (p) => p.color).attr('stroke-opacity', 0.42).attr('stroke-width', (p) => Math.max(p.w, 1.5))
+    .on('mousemove', (e, p) => { g.classed('dim', true); sel.classed('hot', (o) => o === p); showTip(e, `${p.s} → ${p.t}`, [[p.t, `${int(p.v)} kg/h`, p.color]]); })
+    .on('mouseleave', () => { g.classed('dim', false); sel.classed('hot', false); hideTip(); });
+  const ng = svg.append('g').selectAll('g').data(nodes).join('g');
+  ng.append('rect').attr('x', (n) => n.x).attr('y', (n) => n.y).attr('width', nw).attr('height', (n) => n.h).attr('rx', 2).style('fill', 'var(--ink)');
+  const total = m.manure + m.water;
+  ng.each(function (n) {
+    const gg = d3.select(this);
+    const leftSide = n.col === 0;
+    const tx = leftSide ? n.x - 8 : n.x + nw + 8;
+    const anchor = leftSide ? 'end' : 'start';
+    if (n.id === 'htl') {
+      gg.append('text').attr('class', 't-lbl halo').attr('x', n.x + nw / 2).attr('y', n.y - 0).attr('dy', '-0.4em').attr('text-anchor', 'middle').style('font-weight', 600).text(`HTL · ${int(n.v)} kg/h`);
+      return;
+    }
+    gg.append('text').attr('class', 't-lbl halo').attr('x', tx).attr('y', n.y + n.h / 2).attr('dy', '-0.25em').attr('text-anchor', anchor).style('font-weight', 600).text(n.name);
+    gg.append('text').attr('class', 't-num halo').attr('x', tx).attr('y', n.y + n.h / 2).attr('dy', '1.05em').attr('text-anchor', anchor)
+      .text(`${int(n.v)} kg/h${n.col >= 2 ? ` · ${fmt(100 * n.v / total)}%` : ''}`);
+  });
+}
+
+/* ---------- yields & off-gas ---------- */
+function hbars(el, rows, opts) {
+  const W = el.clientWidth, barH = opts.barH || 22, gap = opts.gap || 12;
+  el.replaceChildren();
+  const svg = d3.select(el).append('svg').attr('width', '100%');
+  const lw = measure(svg, rows.map((r) => r.name), 't-sub') + 12;
+  const vw = measure(svg, rows.map((r) => opts.label(r.v)), 't-num') + 10;
+  const x = d3.scaleLinear([0, opts.max || d3.max(rows, (r) => r.v)], [lw, W - vw]);
+  rows.forEach((r, i) => {
+    const y = i * (barH + gap);
+    svg.append('text').attr('class', 't-sub').attr('x', lw - 12).attr('y', y + barH / 2).attr('dy', '.35em').attr('text-anchor', 'end').text(r.name);
+    svg.append('rect').attr('class', grow(opts.key + i)).attr('x', lw).attr('y', y).attr('height', barH).attr('rx', 4)
+      .attr('width', Math.max(x(r.v) - lw, 2)).style('fill', r.color)
+      .on('mousemove', (e) => showTip(e, opts.tipHead || r.name, [[r.name, opts.label(r.v), r.color]])).on('mouseleave', hideTip);
+    svg.append('text').attr('class', 't-num').attr('x', x(r.v) + 6).attr('y', y + barH / 2).attr('dy', '.35em').text(opts.label(r.v));
+  });
+  const h = rows.length * (barH + gap) - gap;
+  svg.attr('height', h).attr('viewBox', `0 0 ${W} ${h}`);
+}
+function drawYields() {
+  const y = DATA.mass;
+  hbars(document.getElementById('yields'), [
+    { name: 'Gas', v: y.yieldGas, color: C.muted }, { name: 'Biocrude', v: y.yieldDry, color: C.blue }, { name: 'Solids (char + ash)', v: y.yieldSolids, color: C.yellow },
+  ], { key: 'y', max: 55, label: (v) => fmt(v) + '%', tipHead: 'Yield on dry manure' });
+}
+function drawOffgas() {
+  const rows = DATA.offgas.map((r) => ({ name: r.component.replace('2', '₂').replace('4', '₄'), v: r.wt_percent, color: r.component === 'CO2' ? C.blue : C.muted }));
+  hbars(document.getElementById('offgas'), rows, { key: 'o', max: 75, label: (v) => v + '%', tipHead: 'Off-gas, wt%', barH: 18, gap: 10 });
+}
+
+/* ---------- dumbbell & feedstock ---------- */
+function drawDumbbell() {
+  const el = document.getElementById('dumbbell');
+  const W = el.clientWidth, rowH = 44;
+  const els = ['C', 'H', 'O', 'N', 'S'];
+  const b = Object.fromEntries(DATA.biocrude.map((r) => [r.property, r]));
+  el.replaceChildren();
+  const svg = d3.select(el).append('svg').attr('width', '100%');
+  const lw = 30, x = d3.scaleLinear([0, 80], [lw, W - 16]);
+  const ax = svg.append('g');
+  [0, 20, 40, 60, 80].forEach((t) => {
+    ax.append('line').attr('x1', x(t)).attr('x2', x(t)).attr('y1', 0).attr('y2', els.length * rowH).style('stroke', 'var(--grid)');
+    ax.append('text').attr('class', 't-axis').attr('x', x(t)).attr('y', els.length * rowH + 16).attr('text-anchor', 'middle').text(t + '%');
+  });
+  els.forEach((e, i) => {
+    const r = b[e], y = i * rowH + rowH / 2;
+    const lit = [r.swine_manure_ref35, r.cattle_manure_ref34, r.dairy_manure_ref36].map(Number);
+    svg.append('rect').attr('x', x(d3.min(lit))).attr('y', y - 7).attr('width', Math.max(x(d3.max(lit)) - x(d3.min(lit)), 3)).attr('height', 14).attr('rx', 7)
+      .style('fill', 'var(--grid)');
+    svg.append('text').attr('class', 't-lbl').attr('x', 0).attr('y', y).attr('dy', '.35em').style('font-weight', 600).text(e);
+    const a = Number(r.raw_manure_this_study), c = Number(r.htl_biocrude_this_study);
+    svg.append('line').attr('x1', x(a)).attr('x2', x(c)).attr('y1', y).attr('y2', y).style('stroke', 'var(--ink-3)').attr('stroke-width', 2);
+    svg.append('circle').attr('cx', x(a)).attr('cy', y).attr('r', 6).style('fill', 'var(--sheet)').style('stroke', 'var(--ink-2)').attr('stroke-width', 2);
+    svg.append('circle').attr('cx', x(c)).attr('cy', y).attr('r', 7).style('fill', C.blue).style('stroke', 'var(--sheet)').attr('stroke-width', 2);
+    svg.append('text').attr('class', 't-num').attr('x', x(Math.max(a, c)) + 13).attr('y', y).attr('dy', '.35em').text(fmt(c) + '%');
+    svg.append('rect').attr('x', 0).attr('y', y - rowH / 2).attr('width', W).attr('height', rowH).style('fill', 'transparent')
+      .on('mousemove', (ev) => showTip(ev, `${e} content, wt%`, [['Raw manure', fmt(a, 2) + '%', 'var(--ink-2)'], ['HTL biocrude', fmt(c, 2) + '%', C.blue], ['Other manure biocrudes', `${fmt(d3.min(lit))}–${fmt(d3.max(lit))}%`, 'var(--grid)']]))
+      .on('mouseleave', hideTip);
+  });
+  const h = els.length * rowH + 22;
+  svg.attr('height', h).attr('viewBox', `0 0 ${W} ${h}`);
+  legend(document.getElementById('db-legend'), [['Raw cattle manure', 'var(--ink-2)'], ['HTL biocrude, this study', C.blue], ['Range of other manure biocrudes [34–36]', 'var(--grid)']]);
+}
+let feedMode = 'el';
+function drawFeed() {
+  const el = document.getElementById('feed');
+  const W = el.clientWidth, H = 230;
+  const props = feedMode === 'el' ? ['C', 'H', 'O', 'N', 'S'] : ['volatile_matter', 'fixed_carbon', 'ash'];
+  const pretty = { volatile_matter: 'Volatile matter', fixed_carbon: 'Fixed carbon', ash: 'Ash' };
+  const series = [['cattle_manure_this_study', 'Cattle (this study)', C.blue], ['dairy_manure_ref104', 'Dairy [104]', C.orange], ['swine_manure_ref105', 'Swine [105]', C.aqua]];
+  const rows = Object.fromEntries(DATA.feedstock.map((r) => [r.property, r]));
+  el.replaceChildren();
+  const svg = d3.select(el).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+  const m = { l: 34, b: 26, t: 8 };
+  const x0 = d3.scaleBand(props, [m.l, W]).paddingInner(0.25).paddingOuter(0.1);
+  const x1 = d3.scaleBand(series.map((s) => s[0]), [0, x0.bandwidth()]).padding(0.12);
+  const ymax = feedMode === 'el' ? 60 : 80;
+  const y = d3.scaleLinear([0, ymax], [H - m.b, m.t]);
+  y.ticks(4).forEach((t) => {
+    svg.append('line').attr('x1', m.l).attr('x2', W).attr('y1', y(t)).attr('y2', y(t)).style('stroke', 'var(--grid)');
+    svg.append('text').attr('class', 't-axis').attr('x', m.l - 6).attr('y', y(t)).attr('dy', '.35em').attr('text-anchor', 'end').text(t);
+  });
+  props.forEach((p) => {
+    svg.append('text').attr('class', 't-sub').attr('x', x0(p) + x0.bandwidth() / 2).attr('y', H - 6).attr('text-anchor', 'middle').text(pretty[p] || p);
+    series.forEach(([col, name, color]) => {
+      const v = Number(rows[p][col]);
+      if (!rows[p][col] && rows[p][col] !== 0) return;
+      if (Number.isNaN(v)) return;
+      svg.append('rect').attr('x', x0(p) + x1(col)).attr('width', x1.bandwidth()).attr('y', y(v)).attr('height', Math.max(y(0) - y(v), 1)).attr('rx', 3).style('fill', color)
+        .on('mousemove', (e) => showTip(e, pretty[p] || p, [[name, fmt(v, 2) + ' wt%', color]])).on('mouseleave', hideTip);
+    });
+  });
+  legend(document.getElementById('feed-legend'), series.map((s) => [s[1], s[2]]));
+}
+function drawHHV() {
+  const b = Object.fromEntries(DATA.biocrude.map((r) => [r.property, r]));
+  const rows = [
+    { name: 'Biocrude, this study', v: Number(b.HHV.htl_biocrude_this_study), color: C.blue },
+    { name: 'Cattle manure biocrude [34]', v: Number(b.HHV.cattle_manure_ref34), color: C.muted },
+    { name: 'Swine manure biocrude [35]', v: Number(b.HHV.swine_manure_ref35), color: C.muted },
+    { name: 'Dairy manure biocrude [36]', v: Number(b.HHV.dairy_manure_ref36), color: C.muted },
+    { name: 'Raw cattle manure', v: Number(b.HHV.raw_manure_this_study), color: C.dark },
+  ];
+  hbars(document.getElementById('hhv'), rows, { key: 'h', max: 45, label: (v) => fmt(v) + ' MJ/kg', tipHead: 'Higher heating value', barH: 20, gap: 10 });
+}
+
+/* ---------- impacts ---------- */
+let imCat = 'GWP', imMode = 'abs';
+function groupOf(c) { return c.startsWith('Electricity') ? 'Electricity' : c; }
+function drawImpact() {
+  const el = document.getElementById('impact');
+  const cat = CAT[imCat];
+  document.getElementById('im-title').textContent = `${cat.name}, ${imMode === 'abs' ? cat.unitShort : '% of total'} per kg bio-oil`;
+  const rows = SCEN.map(([c, e]) => {
+    const parts = {};
+    DATA.lcia.filter((r) => r.case === c && r.electricity === e && r.category === imCat).forEach((r) => {
+      const gname = groupOf(r.contributor); parts[gname] = (parts[gname] || 0) + r.value * cat.scale;
+    });
+    return { c, e, parts, total: d3.sum(Object.values(parts)) };
+  });
+  const W = el.clientWidth, barH = 26, gap = 14, narrow = W < 560;
+  el.replaceChildren();
+  const svg = d3.select(el).append('svg').attr('width', '100%');
+  const labels = rows.map((r) => `${CASE_NAME[r.c]} · ${EL_NAME[r.e]}`);
+  const lw = narrow ? 0 : measure(svg, labels, 't-sub') + 14;
+  const vw = measure(svg, ['100%', fmt(d3.max(rows, (r) => r.total), 2)], 't-num') + 10;
+  const xmax = imMode === 'abs' ? d3.max(rows, (r) => r.total) * 1.05 : 100;
+  const x = d3.scaleLinear([0, xmax], [lw, W - vw]);
+  const rowH = barH + gap + (narrow ? 18 : 0);
+  const top = 20;
+  x.ticks(5).forEach((t) => {
+    svg.append('line').attr('x1', x(t)).attr('x2', x(t)).attr('y1', top - 4).attr('y2', top + rows.length * rowH - gap).style('stroke', 'var(--grid)');
+    svg.append('text').attr('class', 't-axis').attr('x', x(t)).attr('y', 10).attr('text-anchor', 'middle').text(imMode === 'abs' ? d3.format('~g')(t) : t + '%');
+  });
+  const g = svg.append('g');
+  rows.forEach((r, i) => {
+    const y = top + i * rowH + (narrow ? 18 : 0);
+    svg.append('text').attr('class', 't-sub').attr('x', narrow ? 0 : lw - 14).attr('y', narrow ? y - 6 : y + barH / 2).attr('dy', narrow ? 0 : '.35em')
+      .attr('text-anchor', narrow ? 'start' : 'end').text(labels[i]);
+    let x0 = 0;
+    const tipRows = CONTRIB.filter(([n]) => r.parts[n]).map(([n, col]) => [n, imMode === 'abs' ? d3.format('.3~g')(r.parts[n]) : fmt(100 * r.parts[n] / r.total) + '%', col]);
+    CONTRIB.forEach(([n, col]) => {
+      const v = r.parts[n]; if (!v) return;
+      const vv = imMode === 'abs' ? v : 100 * v / r.total;
+      g.append('rect').attr('class', 'mark').attr('x', x(x0) + (x0 ? 1 : 0)).attr('y', y).attr('height', barH)
+        .attr('width', Math.max(x(x0 + vv) - x(x0) - 1, 0.8)).attr('rx', 3).style('fill', col)
+        .on('mousemove', (e) => showTip(e, `${labels[i]} · total ${imMode === 'abs' ? d3.format('.3~g')(r.total) + ' ' + cat.unitShort : '100%'}`, tipRows))
+        .on('mouseleave', hideTip);
+      x0 += vv;
+    });
+    if (imMode === 'abs') svg.append('text').attr('class', 't-num').attr('x', x(r.total) + 6).attr('y', y + barH / 2).attr('dy', '.35em').style('font-weight', 600).text(d3.format('.3~g')(r.total));
+  });
+  const h = top + rows.length * rowH - gap + 4;
+  svg.attr('height', h).attr('viewBox', `0 0 ${W} ${h}`);
+  const used = new Set(rows.flatMap((r) => Object.keys(r.parts)));
+  legend(document.getElementById('im-legend'), CONTRIB.filter(([n]) => used.has(n)));
+}
+
+/* ---------- wind vs grid ---------- */
+function drawMultiplier() {
+  const el = document.getElementById('multiplier');
+  const t = DATA.totals.case1;
+  const rows = Object.keys(CAT).map((k) => ({ k, name: CAT[k].name, wind: t.wind[k], grid: t.grid[k], r: t.grid[k] / t.wind[k] }));
+  const W = el.clientWidth, rowH = 52, narrow = W < 560;
+  el.replaceChildren();
+  const svg = d3.select(el).append('svg').attr('width', '100%');
+  const lw = narrow ? 0 : measure(svg, rows.map((r) => r.name), 't-lbl') + 18;
+  const x = d3.scaleLinear([0.8, 3], [lw + 4, W - 70]);
+  const top = 22, rh = rowH + (narrow ? 16 : 0);
+  [1, 1.5, 2, 2.5, 3].forEach((v) => {
+    svg.append('line').attr('x1', x(v)).attr('x2', x(v)).attr('y1', top - 6).attr('y2', top + rows.length * rh - 10).style('stroke', v === 1 ? 'var(--ink-3)' : 'var(--grid)').attr('stroke-dasharray', v === 1 ? '3 3' : null);
+    svg.append('text').attr('class', 't-axis').attr('x', x(v)).attr('y', 10).attr('text-anchor', 'middle').text('×' + v);
+  });
+  rows.forEach((r, i) => {
+    const y = top + i * rh + rh / 2 - 6 + (narrow ? 8 : 0);
+    svg.append('text').attr('class', 't-lbl').attr('x', narrow ? 0 : lw - 18).attr('y', narrow ? y - 16 : y).attr('dy', narrow ? 0 : '.35em').attr('text-anchor', narrow ? 'start' : 'end').text(r.name);
+    svg.append('line').attr('x1', x(1)).attr('x2', x(r.r)).attr('y1', y).attr('y2', y).style('stroke', C.orange).attr('stroke-width', 3).attr('stroke-linecap', 'round').attr('opacity', 0.5);
+    svg.append('circle').attr('cx', x(1)).attr('cy', y).attr('r', 7).style('fill', C.aqua).style('stroke', 'var(--sheet)').attr('stroke-width', 2);
+    svg.append('circle').attr('cx', x(r.r)).attr('cy', y).attr('r', 8).style('fill', C.orange).style('stroke', 'var(--sheet)').attr('stroke-width', 2);
+    svg.append('text').attr('class', 't-num').attr('x', x(r.r) + 13).attr('y', y).attr('dy', '.35em').style('font-weight', 600).text('×' + fmt(r.r));
+    svg.append('rect').attr('x', 0).attr('y', y - rh / 2).attr('width', W).attr('height', rh).style('fill', 'transparent')
+      .on('mousemove', (e) => showTip(e, `${r.name}, per kg bio-oil`, [['Wind', d3.format('.3~g')(r.wind * CAT[r.k].scale) + ' ' + CAT[r.k].unitShort, C.aqua], ['German grid', d3.format('.3~g')(r.grid * CAT[r.k].scale) + ' ' + CAT[r.k].unitShort, C.orange]]))
+      .on('mouseleave', hideTip);
+  });
+  const h = top + rows.length * rh;
+  svg.attr('height', h).attr('viewBox', `0 0 ${W} ${h}`);
+  legend(document.getElementById('mu-legend'), [['Wind electricity (= ×1)', C.aqua], ['German grid mix', C.orange]]);
+}
+
+/* ---------- air emissions ---------- */
+function drawAir() {
+  const el = document.getElementById('air');
+  const rows = DATA.air.filter((r) => r.total > 1e-12).sort((a, b) => b.total - a.total);
+  const W = el.clientWidth, barH = 20, gap = 10, narrow = W < 560;
+  el.replaceChildren();
+  const svg = d3.select(el).append('svg').attr('width', '100%');
+  const lw = narrow ? 0 : measure(svg, rows.map((r) => r.substance), 't-sub') + 14;
+  const x = d3.scaleLog([1e-8, 10], [lw, W - 80]);
+  const rh = barH + gap + (narrow ? 16 : 0), top = 20;
+  [1e-8, 1e-6, 1e-4, 1e-2, 1].forEach((t) => {
+    svg.append('line').attr('x1', x(t)).attr('x2', x(t)).attr('y1', top - 4).attr('y2', top + rows.length * rh - gap).style('stroke', 'var(--grid)');
+    svg.append('text').attr('class', 't-axis').attr('x', x(t)).attr('y', 10).attr('text-anchor', 'middle').text({1e-8: '10⁻⁸', 1e-6: '10⁻⁶', 1e-4: '10⁻⁴', 1e-2: '0.01', 1: '1 kg'}[t]);
+  });
+  const src = [['htl', 'HTL biocrude production'], ['truck', 'EURO 5 truck'], ['diesel', 'Diesel mix at refinery'], ['wind', 'Electricity from wind'], ['water', 'Desalinated water'], ['heat', 'Heat']];
+  rows.forEach((r, i) => {
+    const y = top + i * rh + (narrow ? 16 : 0);
+    const fossil = r.substance.includes('fossil');
+    svg.append('text').attr('class', 't-sub').attr('x', narrow ? 0 : lw - 14).attr('y', narrow ? y - 5 : y + barH / 2).attr('dy', narrow ? 0 : '.35em').attr('text-anchor', narrow ? 'start' : 'end').text(r.substance);
+    svg.append('rect').attr('class', grow('air' + i)).attr('x', lw).attr('y', y).attr('height', barH).attr('rx', 4).attr('width', Math.max(x(r.total) - lw, 2))
+      .style('fill', fossil ? C.blue : C.muted)
+      .on('mousemove', (e) => showTip(e, `${r.substance} · ${d3.format('.3~g')(r.total)} kg`, src.filter(([k]) => r[k]).map(([k, n]) => [n, d3.format('.3~g')(r[k]) + ' kg'])))
+      .on('mouseleave', hideTip);
+    svg.append('text').attr('class', 't-num').attr('x', x(r.total) + 6).attr('y', y + barH / 2).attr('dy', '.35em').text(d3.format('.2~g')(r.total));
+  });
+  const h = top + rows.length * rh - gap + 4;
+  svg.attr('height', h).attr('viewBox', `0 0 ${W} ${h}`);
+}
+
+/* ---------- allocation & water ---------- */
+function drawAlloc() {
+  const el = document.getElementById('alloc');
+  const W = el.clientWidth, barH = 38;
+  const col = { biocrude: C.blue, biochar: C.yellow, wastewater: C.aqua };
+  el.replaceChildren();
+  const svg = d3.select(el).append('svg').attr('width', '100%');
+  const lw = 78, x = d3.scaleLinear([0, 100], [lw, W]);
+  [['Mass', 'mass_allocation_pct'], ['Economic', 'economic_allocation_pct']].forEach(([name, key], i) => {
+    const y = i * (barH + 34) + 4;
+    svg.append('text').attr('class', 't-lbl').attr('x', 0).attr('y', y + barH / 2).attr('dy', '.35em').style('font-weight', 600).text(name);
+    let x0 = 0;
+    DATA.allocation.forEach((r) => {
+      const v = r[key];
+      svg.append('rect').attr('x', x(x0) + (x0 ? 1.5 : 0)).attr('y', y).attr('height', barH).attr('width', Math.max(x(x0 + v) - x(x0) - 1.5, 1)).attr('rx', 4).style('fill', col[r.product])
+        .on('mousemove', (e) => showTip(e, `${name} allocation`, [[r.product, v + '%', col[r.product]]])).on('mouseleave', hideTip);
+      if (v >= 12) svg.append('text').attr('class', 't-num').attr('x', x(x0 + v / 2)).attr('y', y + barH + 15).attr('text-anchor', 'middle').text(`${r.product} ${v}%`);
+      x0 += v;
+    });
+  });
+  svg.attr('height', 2 * (barH + 34)).attr('viewBox', `0 0 ${W} ${2 * (barH + 34)}`);
+}
+function drawWater() {
+  const el = document.getElementById('water');
+  const W = el.clientWidth, H = 210, m = { l: 34, b: 40, t: 18 };
+  el.replaceChildren();
+  const svg = d3.select(el).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+  const names = DATA.water.map((r) => r.indicator);
+  const x0 = d3.scaleBand(names, [m.l, W]).paddingInner(0.3).paddingOuter(0.1);
+  const x1 = d3.scaleBand(['wind', 'grid'], [0, x0.bandwidth()]).padding(0.1);
+  const y = d3.scaleLinear([0, 100], [H - m.b, m.t]);
+  [0, 25, 50, 75, 100].forEach((t) => {
+    svg.append('line').attr('x1', m.l).attr('x2', W).attr('y1', y(t)).attr('y2', y(t)).style('stroke', 'var(--grid)');
+    svg.append('text').attr('class', 't-axis').attr('x', m.l - 6).attr('y', y(t)).attr('dy', '.35em').attr('text-anchor', 'end').text(t + '%');
+  });
+  DATA.water.forEach((r) => {
+    [['wind', r.wind_electricity_pct, C.aqua], ['grid', r.grid_electricity_pct, C.orange]].forEach(([k, v, c]) => {
+      svg.append('rect').attr('x', x0(r.indicator) + x1(k)).attr('width', x1.bandwidth()).attr('y', y(v)).attr('height', y(0) - y(v)).attr('rx', 3).style('fill', c)
+        .on('mousemove', (e) => showTip(e, r.indicator, [[k === 'wind' ? 'Wind electricity' : 'German grid', v + '%', c]])).on('mouseleave', hideTip);
+      svg.append('text').attr('class', 't-num').attr('x', x0(r.indicator) + x1(k) + x1.bandwidth() / 2).attr('y', y(v) - 5).attr('text-anchor', 'middle').text(v + '%');
+    });
+    const short = r.indicator.startsWith('Blue') ? 'Blue water' : 'Total fresh water';
+    svg.append('text').attr('class', 't-sub').attr('x', x0(r.indicator) + x0.bandwidth() / 2).attr('y', H - 18).attr('text-anchor', 'middle').text(short);
+  });
+  legend(document.getElementById('water-legend'), [['Wind electricity', C.aqua], ['German grid mix', C.orange]]);
+}
+
+/* ---------- inventory table ---------- */
+function setupLCI() {
+  const pick = document.getElementById('lci-pick');
+  SCEN.forEach(([c, e]) => { const o = new Option(`${CASE_NAME[c]} · ${EL_NAME[e]} electricity`, `${c}_${e}`); pick.append(o); });
+  const draw = () => {
+    const rows = DATA.lci[pick.value];
+    const body = document.querySelector('#lci tbody');
+    const out = [];
+    let stage = null;
+    rows.forEach((r) => {
+      if (r.stage !== stage) {
+        stage = r.stage;
+        const tr = document.createElement('tr'); tr.className = 'stage';
+        const td = document.createElement('td'); td.colSpan = 5; td.textContent = stage; tr.append(td); out.push(tr);
+      }
+      const tr = document.createElement('tr');
+      [[r.flow], [r.direction], [d3.format(',.4~f')(r.amount), 'n'], [r.unit], [r.provider]].forEach(([v, cls]) => {
+        const td = document.createElement('td'); if (cls) td.className = cls; td.textContent = v; tr.append(td);
+      });
+      out.push(tr);
+    });
+    body.replaceChildren(...out);
+  };
+  pick.addEventListener('change', draw);
+  draw();
+}
+
+/* ---------- checks ---------- */
+function drawChecks() {
+  document.getElementById('check-list').replaceChildren(...DATA.checks.map((c) => {
+    const li = document.createElement('li');
+    const p = document.createElement('span'); p.className = 'pill ' + c.status; p.textContent = c.status === 'ok' ? 'OK' : 'Review';
+    const d = document.createElement('div');
+    const t = document.createElement('span'); t.className = 'topic'; t.textContent = c.topic;
+    d.append(t, document.createTextNode(c.finding));
+    li.append(p, d); return li;
+  }));
+}
+
+/* ---------- wiring ---------- */
+function drawAll() {
+  drawSankey(); drawYields(); drawOffgas(); drawDumbbell(); drawFeed(); drawHHV();
+  drawImpact(); drawMultiplier(); drawAir(); drawAlloc(); drawWater();
+}
+drawTitle();
+showFlowsheet('case1');
+segmented('fs-', ['case1', 'case2', 'case3'], showFlowsheet);
+segmented('mb-', ['case1', 'case2', 'case3'], (k) => { mbCase = k; drawSankey(); });
+segmented('fd-', ['el', 'px'], (k) => { feedMode = k; drawFeed(); });
+segmented('im-', ['GWP', 'AP', 'EP', 'FAETP'], (k) => { imCat = k; drawImpact(); });
+segmented('im-', ['abs', 'pct'], (k) => { imMode = k; drawImpact(); });
+setupLCI();
+drawChecks();
+drawAll();
+let rt;
+window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(drawAll, 150); });
+
+const links = [...document.querySelectorAll('.toc a')];
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((en) => { if (en.isIntersecting) links.forEach((a) => a.classList.toggle('on', a.getAttribute('href') === '#' + en.target.id)); });
+}, { root: null, rootMargin: '-40% 0px -55% 0px' });
+document.querySelectorAll('.chapter').forEach((s) => io.observe(s));
+const named = location.hash && document.getElementById(location.hash.slice(1));
+if (named) requestAnimationFrame(() => named.scrollIntoView());
+</script>

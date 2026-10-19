@@ -1,6 +1,8 @@
-# Biocrude from Cattle Manure: HTL Process Model and LCA
+# Master thesis: Life cycle assessment of biocrude production from livestock manure in Germany via hydrothermal liquefaction
 
-Process model, life cycle inventory and life cycle assessment of **biocrude production from livestock manure in Germany by hydrothermal liquefaction (HTL)**, rebuilt from my MSc thesis as reusable data, Python code and charts.
+**[Open the interactive findings page](https://malleshkomal.github.io/htl-manure-lca/)**
+
+My Master thesis rebuilt as reusable data, Python code and charts. It covers the Aspen Plus process models, life cycle inventory and life cycle assessment of **biocrude from cattle manure by hydrothermal liquefaction (HTL)** in Germany.
 
 > **Komal Mallesh Chougule**, *Life cycle assessment of Biocrude Production from Livestock manure in Germany via Hydrothermal Liquefaction*. MSc thesis, Groundwater Management, TU Bergakademie Freiberg, 2022. Supervisors: Prof. Dr. J. Bongaerts, Dr. M. Alherbawi.
 
@@ -93,9 +95,15 @@ Rebuilding the thesis as code makes every number traceable. `run.py` writes [`re
 | DECOMPOS code | Table 3.2.1 has no sulfur line, so the yields sum to 0.998. |
 | Conditions | 350 °C / 100 bar (Table 3.2.2) vs 300 °C / 175 bar for the RGibbs reactor (Section 3.2). |
 
+## Interactive findings page
+
+[`docs/index.html`](docs/index.html) is a single self-contained web page with interactive versions of every chart. It includes a switchable mass-flow diagram, an impact explorer for all categories and scenarios, the flowsheets, the inventory table and the data checks. GitHub Pages serves it at **https://malleshkomal.github.io/htl-manure-lca/**. Rebuild it with `python site/build_site.py`.
+
 ## Project structure
 
 ```
+docs/index.html      interactive findings page (GitHub Pages)
+site/                page template and build script
 aspen/               Aspen Plus flowsheets, block and stream tables, Fortran calculator
 data/thesis_tables/  every table of the thesis as CSV
 src/htlmodel/        mass_balance.py, lca.py, checks.py
