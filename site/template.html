@@ -18,7 +18,8 @@
   --accent: #1f6f5c;       /* deep process-water green, for links and focus */
   --c-blue: #2a78d6; --c-orange: #eb6834; --c-aqua: #1baf7a; --c-yellow: #eda100;
   --c-magenta: #e87ba4; --c-violet: #6250d6; --c-muted: #b4b6ae; --c-dark: #8b8f88;
-  --ok: #1b7f4b; --warn: #a35f00;
+  --ok: #1b7f4b; --warn: #a35f00; --bad: #c4312e;
+  --ok-bg: #e3f3ea; --warn-bg: #fbefdc; --bad-bg: #fbe5e4; --info-bg: #eef0ed;
   --tip-bg: #ffffff; --tip-shadow: 0 8px 24px rgba(23, 32, 27, .14);
   --display: "Newsreader", "Iowan Old Style", Georgia, serif;
   --sans: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -32,7 +33,8 @@
     --rule: #2b332f; --grid: #242b27; --accent: #5cc4a6;
     --c-blue: #3987e5; --c-orange: #d95926; --c-aqua: #199e70; --c-yellow: #c98500;
     --c-magenta: #d55181; --c-violet: #9085e9; --c-muted: #5d635f; --c-dark: #7d847f;
-    --ok: #4cc38a; --warn: #e6a23c; --tip-bg: #222a26; --tip-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+    --ok: #4cc38a; --warn: #e6a23c; --bad: #f0706b; --tip-bg: #222a26; --tip-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+    --ok-bg: #173628; --warn-bg: #3b2c14; --bad-bg: #3e1d1c; --info-bg: #222a26;
   }
 }
 :root[data-theme="dark"] {
@@ -41,7 +43,8 @@
   --rule: #2b332f; --grid: #242b27; --accent: #5cc4a6;
   --c-blue: #3987e5; --c-orange: #d95926; --c-aqua: #199e70; --c-yellow: #c98500;
   --c-magenta: #d55181; --c-violet: #9085e9; --c-muted: #5d635f; --c-dark: #7d847f;
-  --ok: #4cc38a; --warn: #e6a23c; --tip-bg: #222a26; --tip-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+  --ok: #4cc38a; --warn: #e6a23c; --bad: #f0706b; --tip-bg: #222a26; --tip-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+  --ok-bg: #173628; --warn-bg: #3b2c14; --bad-bg: #3e1d1c; --info-bg: #222a26;
 }
 body { background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.55; }
 .wrap { position: relative; max-width: 74rem; margin-inline: auto; padding-block: 48px 72px;
@@ -130,6 +133,37 @@ select { font: 500 13px var(--sans); color: var(--ink); background: var(--paper)
 .checks .topic { font-weight: 600; display: block; margin-bottom: 2px; }
 .pill { justify-self: start; align-self: start; font: 500 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .06em; border: 1px solid currentColor; border-radius: 999px; padding: 4px 8px; }
 .pill.ok { color: var(--ok); } .pill.review { color: var(--warn); }
+.score { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (min-width: 720px) { .score { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.score button { align-content: start; }
+.score button { all: unset; cursor: pointer; display: grid; gap: 6px; padding: 12px; border: 1px solid var(--rule); border-radius: 8px; background: var(--sheet); }
+.score button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.score button[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.score .nm { font-size: 13px; font-weight: 600; line-height: 1.3; }
+.score .best { font: 500 10.5px/1 var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--ok); }
+.score .bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--info-bg); gap: 2px; }
+.score .ct { font: 12px var(--mono); color: var(--ink-2); }
+.pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 25rem), 1fr)); gap: 18px; }
+.pillar { align-content: start; }
+.pillar h3 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.pillar h3 small { font: 12px var(--mono); color: var(--ink-3); font-weight: 400; }
+.kpi { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 14px; padding: 12px 0; border-top: 1px solid var(--grid); }
+.kpi:first-of-type { border-top: 0; }
+.kpi .k { font-size: 14px; font-weight: 600; }
+.kpi .d { grid-column: 1; font-size: 12.5px; color: var(--ink-2); line-height: 1.45; }
+.kpi .b { grid-column: 1 / -1; font-size: 12px; color: var(--ink-3); }
+.kpi .val { grid-row: 1 / span 2; grid-column: 2; text-align: right; display: grid; gap: 5px; justify-items: end; align-content: start; }
+.kpi .num { font: 500 18px/1.1 var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.kpi .num small { font: 11.5px var(--sans); color: var(--ink-2); margin-left: 3px; }
+.st { display: inline-flex; align-items: center; gap: 5px; font: 600 11px/1 var(--sans); text-transform: uppercase; letter-spacing: .05em; padding: 4px 8px; border-radius: 999px; white-space: nowrap; }
+.st.pass { color: var(--ok); background: var(--ok-bg); } .st.watch { color: var(--warn); background: var(--warn-bg); }
+.st.fail { color: var(--bad); background: var(--bad-bg); } .st.info { color: var(--ink-2); background: var(--info-bg); }
+table.matrix { border-collapse: separate; border-spacing: 3px; font-size: 12.5px; width: 100%; }
+table.matrix th { font-weight: 600; color: var(--ink-2); padding: 4px 6px; text-align: left; font-size: 12px; }
+table.matrix thead th { text-align: center; white-space: nowrap; }
+table.matrix td.c { text-align: center; border-radius: 5px; padding: 7px 4px; font: 600 12px var(--mono); min-width: 4.2rem; }
+table.matrix td.c.pass { background: var(--ok-bg); color: var(--ok); } table.matrix td.c.watch { background: var(--warn-bg); color: var(--warn); }
+table.matrix td.c.fail { background: var(--bad-bg); color: var(--bad); }
 .colophon { font-size: 13px; color: var(--ink-2); border-top: 1px solid var(--rule); padding-top: 20px; display: grid; gap: 6px; max-width: 70ch; }
 @media (max-width: 560px) { .checks li { grid-template-columns: 1fr; gap: 6px; } .figure { padding: 16px; } }
 @media (prefers-reduced-motion: no-preference) {
@@ -142,6 +176,7 @@ select { font: 500 13px var(--sans); color: var(--ink); background: var(--paper)
   <aside class="toc" aria-label="Contents">
     <nav>
       <div class="toc-h">Contents</div>
+      <a href="#kpi"><span>KPI</span>KPI framework</a>
       <a href="#process"><span>3.2</span>Process model</a>
       <a href="#mass"><span>4.2</span>Mass balance</a>
       <a href="#feedstock"><span>4.1</span>Manure &amp; biocrude</a>
@@ -165,6 +200,26 @@ select { font: 500 13px var(--sans); color: var(--ink); background: var(--paper)
     <p class="lede" id="lede">—</p>
     <div class="figures" id="kpis"></div>
   </header>
+
+  <section class="chapter" id="kpi">
+    <header>
+      <div class="sec">KPI framework · 20 indicators in 4 pillars</div>
+      <h2>Which configuration performs best?</h2>
+      <p>Every result of the thesis turned into a key performance indicator with a definition, a formula and, where one exists, a benchmark. Pick a scenario to see how it scores.</p>
+    </header>
+    <div class="score" id="score" role="group" aria-label="Scenario"></div>
+    <div class="pillars" id="pillars"></div>
+    <div class="figure">
+        <h3>Indicative GHG saving against fossil fuel</h3>
+        <div class="chart" id="savings"></div>
+        <p class="cap">Saving vs the RED II fossil comparator (94 g CO₂ eq/MJ), with the 65% threshold for new plants and 50% for older plants. Indicative only: cradle to gate on an HHV basis, upgrading and use not included, biogenic CO₂ counted as emitted.</p>
+    </div>
+    <div class="figure">
+        <h3>Status of every benchmarked KPI</h3>
+        <div class="scroll"><table class="matrix" id="matrix"></table></div>
+        <p class="cap">✓ pass · ! watch · ✕ fail against the KPI's benchmark. KPIs without a benchmark are left out.</p>
+    </div>
+  </section>
 
   <section class="chapter" id="process">
     <header>
@@ -826,9 +881,105 @@ function drawChecks() {
   }));
 }
 
+/* ---------- KPI framework ---------- */
+const ST = { pass: ['✓', 'Pass', 'var(--ok)'], watch: ['!', 'Watch', 'var(--warn)'], fail: ['✕', 'Fail', 'var(--bad)'], info: ['·', 'Info', 'var(--c-muted)'] };
+let kpiScen = 'case3_wind';
+const scenKey = (c, e) => `${c}_${e}`;
+function fmtKpi(v, unit) {
+  if (typeof v === 'string') return v;
+  if (unit.startsWith('kg CO')) return fmt(v, 2);
+  if (Math.abs(v) < 2) return d3.format('.3~g')(v);
+  return fmt(v, 1);
+}
+function stPill(s) { const e = document.createElement('span'); e.className = 'st ' + s; e.textContent = ST[s][0] + ' ' + ST[s][1]; return e; }
+function drawKpis() {
+  const K = DATA.kpis;
+  const counts = Object.fromEntries(SCEN.map(([c, e]) => {
+    const k = scenKey(c, e); const n = { pass: 0, watch: 0, fail: 0 };
+    K.forEach((r) => { if (n[r[k + '_status']] !== undefined) n[r[k + '_status']] += 1; }); return [k, n];
+  }));
+  const best = SCEN.map(([c, e]) => scenKey(c, e)).sort((a, b) => (counts[a].fail - counts[b].fail) || (counts[a].watch - counts[b].watch) || (counts[b].pass - counts[a].pass))[0];
+  document.getElementById('score').replaceChildren(...SCEN.map(([c, e]) => {
+    const k = scenKey(c, e), n = counts[k], tot = n.pass + n.watch + n.fail;
+    const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-pressed', String(k === kpiScen));
+    const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = `${CASE_NAME[c]} · ${EL_NAME[e]}`;
+    const bar = document.createElement('div'); bar.className = 'bar';
+    ['pass', 'watch', 'fail'].forEach((s) => { if (!n[s]) return; const seg = document.createElement('span'); seg.style.flex = n[s] / tot; seg.style.background = ST[s][2]; bar.append(seg); });
+    const ct = document.createElement('div'); ct.className = 'ct'; ct.textContent = `✓ ${n.pass}  ! ${n.watch}  ✕ ${n.fail}`;
+    b.append(nm, bar, ct);
+    if (k === best) { const t = document.createElement('div'); t.className = 'best'; t.textContent = 'Best overall'; b.prepend(t); }
+    b.addEventListener('click', () => { kpiScen = k; drawKpis(); });
+    return b;
+  }));
+  const pillars = [...new Set(K.map((r) => r.pillar))];
+  document.getElementById('pillars').replaceChildren(...pillars.map((p) => {
+    const card = document.createElement('div'); card.className = 'figure pillar';
+    const rows = K.filter((r) => r.pillar === p);
+    const h = document.createElement('h3'); h.textContent = p;
+    const sm = document.createElement('small'); sm.textContent = `${rows.length} KPIs`; h.append(sm); card.append(h);
+    const list = document.createElement('div');
+    rows.forEach((r) => {
+      const d = document.createElement('div'); d.className = 'kpi';
+      const k = document.createElement('div'); k.className = 'k'; k.textContent = r.kpi;
+      const val = document.createElement('div'); val.className = 'val';
+      const num = document.createElement('div'); num.className = 'num'; num.textContent = fmtKpi(r[kpiScen], r.unit);
+      const u = document.createElement('small'); u.textContent = r.unit; num.append(u);
+      val.append(num, stPill(r[kpiScen + '_status']));
+      const de = document.createElement('div'); de.className = 'd'; de.textContent = r.definition;
+      d.append(k, val, de);
+      if (r.benchmark) { const bm = document.createElement('div'); bm.className = 'b'; bm.textContent = 'Benchmark: ' + r.benchmark + (r.benchmark_source ? ` (${r.benchmark_source})` : ''); d.append(bm); }
+      list.append(d);
+    });
+    card.append(list); return card;
+  }));
+  // matrix
+  const bench = K.filter((r) => SCEN.some(([c, e]) => r[scenKey(c, e) + '_status'] !== 'info'));
+  const tbl = document.getElementById('matrix');
+  const head = document.createElement('thead'); const hr = document.createElement('tr'); hr.append(document.createElement('th'));
+  SCEN.forEach(([c, e]) => { const th = document.createElement('th'); th.textContent = `${c.replace('case', 'C')} ${e}`; th.title = `${CASE_NAME[c]} · ${EL_NAME[e]}`; hr.append(th); });
+  head.append(hr);
+  const body = document.createElement('tbody');
+  bench.forEach((r) => {
+    const tr = document.createElement('tr'); const th = document.createElement('th'); th.textContent = r.kpi; tr.append(th);
+    SCEN.forEach(([c, e]) => {
+      const s = r[scenKey(c, e) + '_status']; const td = document.createElement('td'); td.className = 'c ' + s; td.textContent = ST[s][0];
+      td.title = `${r.kpi}, ${CASE_NAME[c]} · ${EL_NAME[e]}: ${fmtKpi(r[scenKey(c, e)], r.unit)} ${r.unit} (${ST[s][1]})`;
+      tr.append(td);
+    });
+    body.append(tr);
+  });
+  tbl.replaceChildren(head, body);
+  drawSavings();
+}
+function drawSavings() {
+  const el = document.getElementById('savings');
+  const r = DATA.kpis.find((k) => k.kpi.startsWith('Indicative GHG saving'));
+  const rows = SCEN.map(([c, e]) => ({ k: scenKey(c, e), name: `${CASE_NAME[c].replace(' · ', ': ')} · ${EL_NAME[e]}`, v: r[scenKey(c, e)], s: r[scenKey(c, e) + '_status'] }));
+  const W = el.clientWidth, barH = 22, gap = 12, narrow = W < 520;
+  el.replaceChildren();
+  const svg = d3.select(el).append('svg').attr('width', '100%');
+  const lw = narrow ? 0 : measure(svg, rows.map((d) => d.name), 't-sub') + 12;
+  const x = d3.scaleLinear([0, 80], [lw, W - 52]);
+  const top = 26, rh = barH + gap + (narrow ? 16 : 0);
+  [[50, '50% · older plants', 'end'], [65, '65% · new plants', 'start']].forEach(([v, l, a]) => {
+    svg.append('line').attr('x1', x(v)).attr('x2', x(v)).attr('y1', top - 8).attr('y2', top + rows.length * rh - gap).style('stroke', 'var(--ink-3)').attr('stroke-dasharray', '4 3');
+    svg.append('text').attr('class', 't-axis').attr('x', x(v) + (a === 'end' ? -4 : 4)).attr('y', 12).attr('text-anchor', a).text(l);
+  });
+  rows.forEach((d, i) => {
+    const y = top + i * rh + (narrow ? 16 : 0);
+    svg.append('text').attr('class', 't-sub').attr('x', narrow ? 0 : lw - 12).attr('y', narrow ? y - 5 : y + barH / 2).attr('dy', narrow ? 0 : '.35em').attr('text-anchor', narrow ? 'start' : 'end').text(d.name);
+    svg.append('rect').attr('x', lw).attr('y', y).attr('height', barH).attr('rx', 4).attr('width', Math.max(x(d.v) - lw, 2))
+      .style('fill', ST[d.s][2]).attr('opacity', d.k === kpiScen ? 1 : 0.55)
+      .on('mousemove', (e) => showTip(e, d.name, [['GHG saving', fmt(d.v) + '%', ST[d.s][2]], ['Status', ST[d.s][1]]])).on('mouseleave', hideTip);
+    svg.append('text').attr('class', 't-num').attr('x', x(d.v) + 6).attr('y', y + barH / 2).attr('dy', '.35em').style('font-weight', d.k === kpiScen ? 600 : 400).text(fmt(d.v) + '%');
+  });
+  const h = top + rows.length * rh - gap + 4;
+  svg.attr('height', h).attr('viewBox', `0 0 ${W} ${h}`);
+}
+
 /* ---------- wiring ---------- */
 function drawAll() {
-  drawSankey(); drawYields(); drawOffgas(); drawDumbbell(); drawFeed(); drawHHV();
+  drawSavings(); drawSankey(); drawYields(); drawOffgas(); drawDumbbell(); drawFeed(); drawHHV();
   drawImpact(); drawMultiplier(); drawAir(); drawAlloc(); drawWater();
 }
 drawTitle();
@@ -840,6 +991,7 @@ segmented('im-', ['GWP', 'AP', 'EP', 'FAETP'], (k) => { imCat = k; drawImpact();
 segmented('im-', ['abs', 'pct'], (k) => { imMode = k; drawImpact(); });
 setupLCI();
 drawChecks();
+drawKpis();
 drawAll();
 let rt;
 window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(drawAll, 150); });

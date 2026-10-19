@@ -72,3 +72,18 @@ def test_htl_conversion_dominates_gwp():
 def test_channiwala_formula():
     # 1 kg of pure carbon: 34.91 MJ/kg
     assert channiwala_hhv(100, 0, 0) == pytest.approx(34.91)
+
+
+def test_kpi_framework_ranks_case3_wind_best():
+    from htlmodel.kpis import kpi_table, scorecard
+    sc = scorecard()
+    assert sc.loc["case3_wind", "fail"] == 0 and sc.loc["case3_wind", "watch"] == 0
+    assert sc["pass"].idxmax() == "case3_wind"
+    assert len(kpi_table()) == 20
+
+
+def test_ghg_saving_formula():
+    from htlmodel.kpis import ghg_saving, red_status
+    assert ghg_saving(0.0) == pytest.approx(100)
+    assert red_status(ghg_saving(1.2579)) == "pass"
+    assert red_status(ghg_saving(1.6701)) == "watch"

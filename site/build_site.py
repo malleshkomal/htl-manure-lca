@@ -20,6 +20,7 @@ import pandas as pd  # noqa: E402
 
 from htlmodel import lca  # noqa: E402
 from htlmodel.checks import run_checks  # noqa: E402
+from htlmodel.kpis import kpi_table  # noqa: E402
 from htlmodel.mass_balance import htl_balance, treatment_balance  # noqa: E402
 from run import lci_table  # noqa: E402
 
@@ -58,6 +59,7 @@ def build_data():
         "lci": {f"{c}_{e}": json.loads(lci_table(c, e).to_json(orient="records"))
                 for c in lca.CASES for e in lca.ELECTRICITY},
         "checks": [vars(c) for c in run_checks()],
+        "kpis": json.loads(kpi_table().to_json(orient="records")),
     }
 
 

@@ -19,6 +19,7 @@ from matplotlib.patches import PathPatch  # noqa: E402
 from matplotlib.path import Path as MPath  # noqa: E402
 
 from htlmodel import lca  # noqa: E402
+from htlmodel.kpis import SCENARIOS, kpi_table  # noqa: E402
 from htlmodel.mass_balance import htl_balance, treatment_balance  # noqa: E402
 
 DATA = ROOT / "data" / "thesis_tables"
@@ -352,10 +353,38 @@ def chart_aqueous_treatment():
     save(fig, "12_aqueous_treatment.png")
 
 
+def chart_kpi_scorecard():
+    k = kpi_table()
+    cols = [f"{c}_{e}" for c, e in SCENARIOS]
+    k = k[(k[[c + "_status" for c in cols]] != "info").any(axis=1)].reset_index(drop=True)
+    fill = {"pass": "#d6efe0", "watch": "#fbe8c8", "fail": "#f8d6d4", "info": "#eeefec"}
+    ink = {"pass": "#1b7f4b", "watch": "#a35f00", "fail": "#c4312e", "info": TEXT_2}
+    sym = {"pass": "✓", "watch": "!", "fail": "✕", "info": "·"}
+    fig = figure(12.5, 7.2, "KPI scorecard: case 3 on wind power passes every benchmark",
+                 "Status of each benchmarked KPI per scenario. ✓ pass · ! watch · ✕ fail")
+    ax = fig.add_axes([0.27, 0.06, 0.7, 0.74])
+    ax.set_xlim(0, len(cols))
+    ax.set_ylim(len(k), -0.9)
+    ax.axis("off")
+    names = ["Case 1\nwind", "Case 1\ngrid", "Case 2 HTG\nwind", "Case 2 HTG\ngrid", "Case 3 FD\nwind", "Case 3 FD\ngrid"]
+    for j, n in enumerate(names):
+        ax.text(j + 0.5, -0.45, n, ha="center", va="center", fontsize=9.5, color=TEXT, fontweight="bold" if j == 4 else None)
+    for i, r in k.iterrows():
+        ax.text(-0.12, i + 0.5, r["kpi"], ha="right", va="center", fontsize=10, color=TEXT)
+        for j, c in enumerate(cols):
+            st = r[c + "_status"]
+            ax.add_patch(plt.Rectangle((j + 0.04, i + 0.06), 0.92, 0.88, color=fill[st], lw=0))
+            v = r[c]
+            label = v if isinstance(v, str) else (f"{v:.2f}" if abs(v) < 2 else f"{v:.1f}")
+            ax.text(j + 0.5, i + 0.5, f"{sym[st]} {label}", ha="center", va="center", fontsize=9, color=ink[st])
+    ax.add_patch(plt.Rectangle((4.0, -0.95), 1.0, len(k) + 0.95, fill=False, ec=TEXT, lw=1.6))
+    save(fig, "13_kpi_scorecard.png")
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     for chart in (chart_mass_balance, chart_yields, chart_offgas, chart_feedstock, chart_biocrude, chart_gwp,
-                  chart_shares, chart_wind_vs_grid, chart_air_emissions, chart_allocation, chart_water, chart_aqueous_treatment):
+                  chart_shares, chart_wind_vs_grid, chart_air_emissions, chart_allocation, chart_water, chart_aqueous_treatment, chart_kpi_scorecard):
         chart()
 
 

@@ -39,6 +39,21 @@ Three process configurations were modelled in **Aspen Plus**, each with wind or 
 - **Diesel trucks dominate acidification, eutrophication and toxicity** when the electricity comes from wind.
 - **Treating the aqueous phase** recovers about 99% of it as clean water (COD < 250 mg/L). Distillation (case 3) adds less to GWP than gasification (case 2).
 
+## KPI framework
+
+20 key performance indicators in four pillars, each with a definition, a formula, a benchmark where one exists, and a pass / watch / fail status for all 6 scenarios (`src/htlmodel/kpis.py`, written to `results/kpi_framework.csv`).
+
+| Pillar | KPIs |
+|---|---|
+| **Process performance** | Biocrude yield · output · heating value · energy recovery · carbon recovery · nitrogen carried into the oil |
+| **Climate & environment** | GWP per kg and per MJ · indicative GHG saving vs the RED II fossil comparator · conversion hotspot share · acidification · eutrophication · ecotoxicity |
+| **Water & circularity** | Water recovered from the aqueous phase · COD of discharged water · dry feed turned into products · value share of biocrude · blue water |
+| **Data quality** | Mass balance closure · impact totals reproduced |
+
+**Case 3 (HTL + fractional distillation) on wind power is the only scenario that passes every benchmark.** It recovers 99.4% of the aqueous phase as clean water and shows an indicative 65.3% GHG saving. That saving is cradle to gate on an HHV basis, so it is a screening value and not a RED II compliance claim.
+
+![KPI scorecard](results/charts/13_kpi_scorecard.png)
+
 ## Charts
 
 Run `python make_charts.py` to redraw these in [`results/charts/`](results/charts/).
@@ -74,8 +89,8 @@ The three flowsheets are documented in [`aspen/`](aspen/): block-by-block descri
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 python run.py          # mass balance, 6 scenario inventories, impact totals, data checks
-python make_charts.py  # the 12 charts
-pytest                 # 11 tests
+python make_charts.py  # the 13 charts
+pytest                 # 13 tests
 ```
 
 `htlmodel.mass_balance.htl_balance(feed_t_per_day=...)` scales the Aspen base case to any plant size.
@@ -106,7 +121,7 @@ docs/index.html      interactive findings page (GitHub Pages)
 site/                page template and build script
 aspen/               Aspen Plus flowsheets, block and stream tables, Fortran calculator
 data/thesis_tables/  every table of the thesis as CSV
-src/htlmodel/        mass_balance.py, lca.py, checks.py
+src/htlmodel/        mass_balance.py, lca.py, kpis.py, checks.py
 tests/               pytest checks (mass balance, yields, impact totals)
 results/             scenario inventories, impact totals, data checks, charts/
 run.py               rebuild inventories and run checks

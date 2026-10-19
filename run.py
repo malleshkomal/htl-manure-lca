@@ -14,6 +14,7 @@ import pandas as pd  # noqa: E402
 
 from htlmodel import lca  # noqa: E402
 from htlmodel.checks import run_checks  # noqa: E402
+from htlmodel.kpis import kpi_table, scorecard  # noqa: E402
 from htlmodel.mass_balance import decompose, htl_balance, treatment_balance  # noqa: E402
 
 RESULTS = ROOT / "results"
@@ -74,6 +75,13 @@ def main():
     t.to_csv(RESULTS / "lcia_totals.csv")
     print("\nImpacts per kg bio-oil (CML 2001):")
     print(t.map(lambda v: f"{v:.3g}").to_string())
+
+    kpi_table().to_csv(RESULTS / "kpi_framework.csv", index=False)
+    sc = scorecard()
+    sc.to_csv(RESULTS / "kpi_scorecard.csv")
+    print("\nKPI scorecard (pass / watch / fail):")
+    for k, r in sc.iterrows():
+        print(f"  {k:<12} {r['pass']:>2} / {r['watch']} / {r['fail']}")
 
     checks = run_checks()
     pd.DataFrame([vars(c) for c in checks]).to_csv(RESULTS / "data_checks.csv", index=False)
