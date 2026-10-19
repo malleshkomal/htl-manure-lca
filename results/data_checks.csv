@@ -1,0 +1,17 @@
+topic,status,finding
+Mass balance,ok,"Inputs 88,500.00 kg/h = outputs 88,500.00 kg/h (Table 4.2.1 closes)."
+Slurry concentration,ok,"Dry solids 17,700 kg/h in 88,500 kg/h = 20.0% (matches the 20 wt% target)."
+Biocrude yield basis,review,"4,887.52 kg/h is 27.6% of the dry feed and 33.5% on a dry ash-free basis. Table 4.2.3 (27.61%, dry basis) is consistent; Section 4.2.2 and the conclusion call 27.7–27.9% 'daf'."
+Daily biocrude output,review,"4,887.52 kg/h × 24 h = 117.3 t/day; Section 4.2.2 says 117,301 tonne/day."
+Gas and biochar in the LCI,review,"Mass balance gives 1.75 kg gas and 0.895 kg solids per kg bio-oil (yields 48.3% and 24.7% of dry feed). Table 4.4 lists 0.64 kg gas, and its yield labels for gas (24.717%) and biochar (48.32%) are swapped."
+Aqueous phase in the LCI,review,Mass balance gives 14.46 kg aqueous phase per kg bio-oil; Table 4.4 lists 14.62 kg.
+Case 3 input stream,review,"Table 4.2.1 lists 75,572.07 kg/h into fractional distillation. That is the LIQUIDS stream (biocrude + aqueous); the outputs 70,259.5 + 425.0 = 70,684.5 kg/h equal the aqueous phase alone."
+Impact table columns,review,"In Table 4.1 some rows have the diesel-mix and truck values (and once the EP values) under swapped column headings, and case 2 grid FAETP diesel reads 0.00809 instead of 0.000809. With one consistent assignment every printed total is reproduced within 0.3%."
+Grid GWP in the conclusion,review,"Table 4.1 gives 1.67 kg CO2 eq (case 1, grid); Section 4.6 says 1.76."
+Biocrude HHV,review,Aspen reports 39.1 MJ/kg; the thesis's Eq. 2 applied to the reported biocrude composition gives 27.7 MJ/kg. The composition also sums to 100.5%.
+Raw manure HHV,review,Eq. 2 on the dry ultimate analysis gives 16.6 MJ/kg (dry); Table 4.2.3 lists 7.9 MJ/kg without a basis.
+DECOMPOS Fortran,review,"Table 3.2.1 has no sulfur line, so the yields sum to 0.9977 instead of 1; adding S = ULT(S) × FACT closes it (1.0000)."
+HTL operating conditions,review,Table 3.2.2 gives 350 °C and 100 bar; Section 3.2 runs the SECONDRY RGibbs reactor at 300 °C and 175 bar.
+Aqueous-phase pumps,review,Section 3.3 names pumps P60 (60 bar) and P80 (80 bar); the flowsheet labels them P80 and P160.
+HTL heat input unit,review,Table 4.4 gives heat as 5.01 'cal/hr' per kg bio-oil; the unit needs confirming.
+Moisture in the slurry,ok,"Manure at 78.76% moisture needs 5,167 kg/h make-up water (≈1.06 kg per kg bio-oil, Table 4.4: 1.1 kg)."

@@ -1,0 +1,16 @@
+case,block_id,aspen_model,role,inlets,outlets,conditions
+all,P50,Pump,First high-pressure slurry water pump,WATER,2,discharge 50 bar
+all,P100,Pump,Second high-pressure pump,2,3,discharge 100 bar
+all,DECOMPOS,RYield,Converts non-conventional MANURE into conventional H2O / C / H2 / O2 / N2 / S / ash / char (Fortran calculator),MANURE,1,yields from ULTANAL / PROXANAL
+all,MX1,Mixer,Mixes decomposed manure with pressurised water into a slurry (≤20 wt% solids),"1, 3",4,
+all,HYDROLYS,RYield,HTL product yield distribution (biocrude components and char) set by Fortran calculator,4,5,350 °C / 100 bar (Table 3.2.2)
+all,SPLIT,SSplit / Sep,Removes solids (char and ash),5,"SOLID, 6",
+all,SECONDAR,RGibbs,Secondary HTL reactions by Gibbs free-energy minimisation,6,7,300 °C / 175 bar (Section 3.2 text)
+all,F1,Flash2,Separates non-condensable gas from liquids,7,"SYNGAS, LIQUIDS",30 °C / 1 bar
+all,SEP,Sep,Separates biocrude from aqueous phase,LIQUIDS,"BIOCRUDE, AQUE",
+case2,P80,Pump,Aqueous-phase pump 1,AQUE,8,(text: P60 at 60 bar)
+case2,P160,Pump,Aqueous-phase pump 2,8,9,(text: P80 at 80 bar)
+case2,HTG,RGibbs,Catalytic hydrothermal gasification of dissolved organics to CH4 / CO2 / NH3,9,10,550 °C / 200 bar; 100% conversion; 99.9% COD removal
+case2,CHTG,Flash2,Separates CHG off-gas from organic-free water,10,"SYNGAS2, AQUE2",30 °C / 1 bar
+case3,B1,Heater,Adjusts aqueous feed to column inlet temperature,AQUE,S1,30 °C
+case3,FRACTION,RadFrac,Fractional distillation of the aqueous phase,S1,"VOLATILE, PWATER","6 theoretical stages, molar reflux ratio 1, bottoms 70,259.5 kg/h, feed COD 650 mg/L to <250 mg/L"

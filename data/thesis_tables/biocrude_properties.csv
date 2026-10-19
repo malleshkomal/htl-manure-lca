@@ -1,0 +1,8 @@
+property,raw_manure_this_study,htl_biocrude_this_study,swine_manure_ref35,cattle_manure_ref34,dairy_manure_ref36,unit
+C,38.83,60.56,71.2,73.72,75.1,wt%
+H,5.63,8.045,9.5,8.13,8.2,wt%
+O,31.21,29.11,15.6,16.76,14.1,wt%
+N,5.68,1.48,3.7,1.39,2.7,wt%
+S,1.055,1.29,0.12,0,0,wt%
+HHV,7.9,39.096,34.7,35.53,34.7,MJ/kg
+oil_yield_dry_basis,,27.61,30.2,27.79,19.05,%

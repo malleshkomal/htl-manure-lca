@@ -1,0 +1,4 @@
+product,mass_allocation_pct,economic_allocation_pct,price,price_unit
+biocrude,47,69,400,EUR/t
+biochar,47,31,200,EUR/t
+wastewater,6,0.2,1.64,EUR/m3

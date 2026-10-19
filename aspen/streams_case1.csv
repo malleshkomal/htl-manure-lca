@@ -1,0 +1,15 @@
+stream,from,to,type,kg_per_h,note
+MANURE,feed,DECOMPOS,non-conventional,83333.33,2000 t/day wet manure (78.76% moisture)
+WATER,feed,P50,conventional,5166.66,make-up water to reach 20% solids
+2,P50,P100,conventional,5166.66,
+3,P100,MX1,conventional,5166.66,
+1,DECOMPOS,MX1,mixed,83333.33,
+4,MX1,HYDROLYS,mixed,88500,
+5,HYDROLYS,SPLIT,mixed,88500,
+SOLID,SPLIT,product,solid,4373.91,char and ash
+6,SPLIT,SECONDAR,mixed,84126.09,
+7,SECONDAR,F1,mixed,84126.09,
+SYNGAS,F1,product,vapour,8554.01,non-condensable gas
+LIQUIDS,F1,SEP,liquid,75572.06,
+BIOCRUDE,SEP,product,liquid,4887.52,HHV 39.70 MJ/kg (Aspen)
+AQUE,SEP,product,liquid,70684.54,aqueous phase

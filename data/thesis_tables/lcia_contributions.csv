@@ -1,0 +1,131 @@
+case,electricity,category,unit,contributor,value
+case1,wind,GWP,kg CO2 eq,Truck (EURO 5),0.127
+case1,wind,GWP,kg CO2 eq,Diesel mix at refinery,0.0114
+case1,wind,GWP,kg CO2 eq,Desalinated water,0.00171
+case1,wind,GWP,kg CO2 eq,Heat,1.4e-06
+case1,wind,GWP,kg CO2 eq,HTL conversion,1.11
+case1,wind,GWP,kg CO2 eq,Electricity (wind),0.00776
+case1,wind,AP,kg SO2 eq,Truck (EURO 5),0.00027
+case1,wind,AP,kg SO2 eq,Diesel mix at refinery,5.95e-05
+case1,wind,AP,kg SO2 eq,Desalinated water,2.98e-06
+case1,wind,AP,kg SO2 eq,Heat,5.5e-10
+case1,wind,AP,kg SO2 eq,Electricity (wind),2.13e-05
+case1,wind,EP,kg PO4 eq,Truck (EURO 5),7.24e-05
+case1,wind,EP,kg PO4 eq,Diesel mix at refinery,9.29e-06
+case1,wind,EP,kg PO4 eq,Desalinated water,1.04e-06
+case1,wind,EP,kg PO4 eq,Heat,7.26e-11
+case1,wind,EP,kg PO4 eq,Electricity (wind),2.43e-06
+case1,wind,FAETP,kg DCB eq,Truck (EURO 5),1.72e-07
+case1,wind,FAETP,kg DCB eq,Diesel mix at refinery,0.000809
+case1,wind,FAETP,kg DCB eq,Desalinated water,9.78e-06
+case1,wind,FAETP,kg DCB eq,Heat,5.13e-10
+case1,wind,FAETP,kg DCB eq,Electricity (wind),6.9e-05
+case1,grid,GWP,kg CO2 eq,Truck (EURO 5),0.127
+case1,grid,GWP,kg CO2 eq,Diesel mix at refinery,0.0114
+case1,grid,GWP,kg CO2 eq,Desalinated water,0.00171
+case1,grid,GWP,kg CO2 eq,Heat,1.4e-06
+case1,grid,GWP,kg CO2 eq,HTL conversion,1.11
+case1,grid,GWP,kg CO2 eq,Electricity (German grid mix),0.42
+case1,grid,AP,kg SO2 eq,Truck (EURO 5),0.00027
+case1,grid,AP,kg SO2 eq,Diesel mix at refinery,5.95e-05
+case1,grid,AP,kg SO2 eq,Desalinated water,2.98e-06
+case1,grid,AP,kg SO2 eq,Heat,5.5e-10
+case1,grid,AP,kg SO2 eq,Electricity (German grid mix),0.000581
+case1,grid,EP,kg PO4 eq,Truck (EURO 5),7.24e-05
+case1,grid,EP,kg PO4 eq,Diesel mix at refinery,9.29e-06
+case1,grid,EP,kg PO4 eq,Desalinated water,1.04e-06
+case1,grid,EP,kg PO4 eq,Heat,7.26e-11
+case1,grid,EP,kg PO4 eq,Electricity (German grid mix),0.000104
+case1,grid,FAETP,kg DCB eq,Truck (EURO 5),1.72e-07
+case1,grid,FAETP,kg DCB eq,Diesel mix at refinery,0.000809
+case1,grid,FAETP,kg DCB eq,Desalinated water,9.78e-06
+case1,grid,FAETP,kg DCB eq,Heat,5.13e-10
+case1,grid,FAETP,kg DCB eq,Electricity (German grid mix),0.000637
+case2,wind,GWP,kg CO2 eq,Truck (EURO 5),0.127
+case2,wind,GWP,kg CO2 eq,Diesel mix at refinery,0.0114
+case2,wind,GWP,kg CO2 eq,Desalinated water,0.00171
+case2,wind,GWP,kg CO2 eq,Heat,1.4e-06
+case2,wind,GWP,kg CO2 eq,HTL conversion,1.11
+case2,wind,GWP,kg CO2 eq,Electricity (wind),0.00776
+case2,wind,GWP,kg CO2 eq,Hydrothermal gasification,0.104
+case2,wind,AP,kg SO2 eq,Truck (EURO 5),0.00027
+case2,wind,AP,kg SO2 eq,Diesel mix at refinery,5.95e-05
+case2,wind,AP,kg SO2 eq,Desalinated water,2.98e-06
+case2,wind,AP,kg SO2 eq,Heat,5.5e-10
+case2,wind,AP,kg SO2 eq,Electricity (wind),2.13e-05
+case2,wind,EP,kg PO4 eq,Truck (EURO 5),7.24e-05
+case2,wind,EP,kg PO4 eq,Diesel mix at refinery,9.29e-06
+case2,wind,EP,kg PO4 eq,Desalinated water,1.04e-06
+case2,wind,EP,kg PO4 eq,Heat,7.26e-11
+case2,wind,EP,kg PO4 eq,Electricity (wind),2.43e-06
+case2,wind,FAETP,kg DCB eq,Truck (EURO 5),1.72e-07
+case2,wind,FAETP,kg DCB eq,Diesel mix at refinery,0.000809
+case2,wind,FAETP,kg DCB eq,Desalinated water,9.78e-06
+case2,wind,FAETP,kg DCB eq,Heat,5.13e-10
+case2,wind,FAETP,kg DCB eq,Electricity (wind),6.9e-05
+case2,grid,GWP,kg CO2 eq,Truck (EURO 5),0.127
+case2,grid,GWP,kg CO2 eq,Diesel mix at refinery,0.0114
+case2,grid,GWP,kg CO2 eq,Desalinated water,0.00171
+case2,grid,GWP,kg CO2 eq,Heat,1.4e-06
+case2,grid,GWP,kg CO2 eq,HTL conversion,1.11
+case2,grid,GWP,kg CO2 eq,Electricity (German grid mix),0.424
+case2,grid,GWP,kg CO2 eq,Hydrothermal gasification,0.104
+case2,grid,AP,kg SO2 eq,Truck (EURO 5),0.00027
+case2,grid,AP,kg SO2 eq,Diesel mix at refinery,5.95e-05
+case2,grid,AP,kg SO2 eq,Desalinated water,2.98e-06
+case2,grid,AP,kg SO2 eq,Heat,5.5e-10
+case2,grid,AP,kg SO2 eq,Electricity (German grid mix),0.000581
+case2,grid,EP,kg PO4 eq,Truck (EURO 5),7.24e-05
+case2,grid,EP,kg PO4 eq,Diesel mix at refinery,9.29e-06
+case2,grid,EP,kg PO4 eq,Desalinated water,1.04e-06
+case2,grid,EP,kg PO4 eq,Heat,7.26e-11
+case2,grid,EP,kg PO4 eq,Electricity (German grid mix),0.000104
+case2,grid,FAETP,kg DCB eq,Truck (EURO 5),1.72e-07
+case2,grid,FAETP,kg DCB eq,Diesel mix at refinery,0.000809
+case2,grid,FAETP,kg DCB eq,Desalinated water,9.78e-06
+case2,grid,FAETP,kg DCB eq,Heat,5.13e-10
+case2,grid,FAETP,kg DCB eq,Electricity (German grid mix),0.000637
+case3,wind,GWP,kg CO2 eq,Truck (EURO 5),0.127
+case3,wind,GWP,kg CO2 eq,Diesel mix at refinery,0.0114
+case3,wind,GWP,kg CO2 eq,Desalinated water,0.00171
+case3,wind,GWP,kg CO2 eq,Heat,1.4e-06
+case3,wind,GWP,kg CO2 eq,HTL conversion,1.11
+case3,wind,GWP,kg CO2 eq,Electricity (wind),0.0078
+case3,wind,GWP,kg CO2 eq,Fractional distillation,0.0164
+case3,wind,AP,kg SO2 eq,Truck (EURO 5),0.00027
+case3,wind,AP,kg SO2 eq,Diesel mix at refinery,5.95e-05
+case3,wind,AP,kg SO2 eq,Desalinated water,2.98e-06
+case3,wind,AP,kg SO2 eq,Heat,5.5e-10
+case3,wind,AP,kg SO2 eq,Electricity (wind),2.13e-05
+case3,wind,EP,kg PO4 eq,Truck (EURO 5),7.24e-05
+case3,wind,EP,kg PO4 eq,Diesel mix at refinery,9.29e-06
+case3,wind,EP,kg PO4 eq,Desalinated water,1.04e-06
+case3,wind,EP,kg PO4 eq,Heat,7.26e-11
+case3,wind,EP,kg PO4 eq,Electricity (wind),2.43e-06
+case3,wind,FAETP,kg DCB eq,Truck (EURO 5),1.72e-07
+case3,wind,FAETP,kg DCB eq,Diesel mix at refinery,0.000809
+case3,wind,FAETP,kg DCB eq,Desalinated water,9.78e-06
+case3,wind,FAETP,kg DCB eq,Heat,5.13e-10
+case3,wind,FAETP,kg DCB eq,Electricity (wind),6.9e-05
+case3,grid,GWP,kg CO2 eq,Truck (EURO 5),0.127
+case3,grid,GWP,kg CO2 eq,Diesel mix at refinery,0.0114
+case3,grid,GWP,kg CO2 eq,Desalinated water,0.00171
+case3,grid,GWP,kg CO2 eq,Heat,1.4e-06
+case3,grid,GWP,kg CO2 eq,HTL conversion,1.11
+case3,grid,GWP,kg CO2 eq,Electricity (German grid mix),0.424
+case3,grid,GWP,kg CO2 eq,Fractional distillation,0.01064
+case3,grid,AP,kg SO2 eq,Truck (EURO 5),0.00027
+case3,grid,AP,kg SO2 eq,Diesel mix at refinery,5.95e-05
+case3,grid,AP,kg SO2 eq,Desalinated water,2.98e-06
+case3,grid,AP,kg SO2 eq,Heat,5.5e-10
+case3,grid,AP,kg SO2 eq,Electricity (German grid mix),0.000581
+case3,grid,EP,kg PO4 eq,Truck (EURO 5),7.24e-05
+case3,grid,EP,kg PO4 eq,Diesel mix at refinery,9.29e-06
+case3,grid,EP,kg PO4 eq,Desalinated water,1.04e-06
+case3,grid,EP,kg PO4 eq,Heat,7.26e-11
+case3,grid,EP,kg PO4 eq,Electricity (German grid mix),0.000104
+case3,grid,FAETP,kg DCB eq,Truck (EURO 5),1.72e-07
+case3,grid,FAETP,kg DCB eq,Diesel mix at refinery,0.000809
+case3,grid,FAETP,kg DCB eq,Desalinated water,9.78e-06
+case3,grid,FAETP,kg DCB eq,Heat,5.13e-10
+case3,grid,FAETP,kg DCB eq,Electricity (German grid mix),0.000637

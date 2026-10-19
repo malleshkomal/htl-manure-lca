@@ -1,0 +1,11 @@
+stage,direction,flow,amount,unit,provider
+Transport,input,"manure transport, 75 km",1.2788,t·km,"Truck, EURO 5, diesel driven (GaBi)"
+Pre-processing,input,wet cattle manure,17.05,kg,farm (burden-free waste)
+Pre-processing,input,process water,1.057,kg,"DE: Water, desalinated (GaBi)"
+Pre-processing,input,electricity,0.2888,kWh,DE: Electricity grid mix (GaBi)
+HTL,input,electricity,0.452,kWh,DE: Electricity grid mix (GaBi)
+HTL,input,heat,5.01,as printed (cal/hr),"EU: Thermal energy (GaBi, 'EU-23: Heat')"
+HTL,output,bio-oil (biocrude),1.0,kg,reference flow
+HTL,output,"gas (CO2, CH4, N2, H2, H2S)",1.75,kg,emission / off-gas
+HTL,output,solids (char + ash),0.895,kg,landfill / fertiliser
+HTL,output,aqueous phase (untreated),14.462,kg,wastewater

@@ -1,0 +1,17 @@
+stage,flow,amount,unit,remark
+Biomass collection and transportation,travel distance,75,km,Assumption
+Biomass collection and transportation,transport energy,,,Diesel truck (EURO 5)
+Pre-processing,manure,17.1,kg,
+Pre-processing,water,1.1,kg,
+Pre-processing,electricity,0.2888,kWh,Adjusted from total electricity consumption from Aspen Plus
+Hydrothermal liquefaction,biomass slurry,18.1,kg,
+Hydrothermal liquefaction,heat,5.01,cal/hr,From Aspen Plus adjustments (unit as printed)
+Hydrothermal liquefaction,electricity,0.452,kWh,
+Hydrothermal liquefaction,bio-oil,1,kg,Based on the yield calculated (27.07%)
+Hydrothermal liquefaction,gas,0.64,kg,Based on the yield (24.717%)
+Hydrothermal liquefaction,biochar,0.89491,kg,Based on the yield calculated (48.32)
+Hydrothermal liquefaction,aqueous,14.62,kg,Calculated by mass balance
+Hydrothermal gasification (case 2),syngas 2,0.03,kg,Calculated by mass balance
+Hydrothermal gasification (case 2),organic free water,14.32,kg,
+Fractional distillation (case 3),volatile organic compounds,0.07,kg,Calculated by mass balance
+Fractional distillation (case 3),pure water,14.375,kg,

@@ -1,0 +1,11 @@
+substance,total,htl_biocrude_production,de_diesel_mix_at_refinery,electricity_from_wind,de_water_desalinated,eu23_heat,euro5_truck_diesel
+"carbon dioxide, biotic",0.008606,,0.00123,0.000795,0.000311,3.13E-09,0.00627
+"carbon dioxide, fossil",1.251231,1.11,0.0134,0.00726,0.00157,1.36E-06,0.119
+"carbon monoxide, biogenic",2.89E-04,,3.47E-05,2.59E-05,1.79E-06,8.11E-10,2.27E-04
+hydrogen chloride,4.13E-07,,1.31E-07,2.33E-07,4.89E-08,1.36E-12,
+methane,1.54E-04,,0.000141,1.10E-05,2.36E-06,3.60E-09,8.56E-08
+nitrogen oxides,4.19E-05,,2.87E-05,1.05E-05,2.72E-06,4.98E-10,
+particulates,1.48E-05,,4.67E-06,3.63E-06,3.08E-07,2.62E-11,6.19E-06
+sulfur dioxide,4.31E-05,,3.10E-05,1.04E-05,9.26E-07,2.44E-10,7.89E-07
+sulfur oxides,2.06E-17,,6.81E-18,1.38E-17,8.09E-21,2.08E-25,
+nitrous oxide,7.83E-06,,1.37E-06,1.76E-07,8.41E-08,1.56E-11,6.20E-06

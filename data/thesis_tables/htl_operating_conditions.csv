@@ -1,0 +1,32 @@
+parameter,value,unit,source
+operating_hours,8000,h/year,Table 3.2.2
+biomass_feed_rate,2000,t/day,Table 3.2.2
+dry_solids_in_slurry,20,wt%,Table 3.2.2
+biomass_conversion,99.98,%,Table 3.2.2
+htl_pressure,100,bar,Table 3.2.2
+htl_temperature,350,°C,Table 3.2.2
+secondary_reactor_temperature,300,°C,Section 3.2 text (SECONDRY RGibbs)
+secondary_reactor_pressure,175,bar,Section 3.2 text (SECONDRY RGibbs)
+flash_F1_temperature,30,°C,Section 3.2
+flash_F1_pressure,1,bar,Section 3.2
+pump_P50_discharge,50,bar,Section 3.2
+pump_P100_discharge,100,bar,Section 3.2
+property_method,NRTL,,Section 3.1.2
+nonconventional_enthalpy_model,HCOALGEN,,Section 3.1.2
+nonconventional_density_model,DCOALIGT,,Section 3.1.2
+chg_temperature,550,°C,Section 3.3
+chg_pressure,200,bar,Section 3.3
+chg_pump_P60_discharge,60,bar,Section 3.3 (flowsheet labels P80/P160)
+chg_pump_P80_discharge,80,bar,Section 3.3
+chg_flash_temperature,30,°C,Section 3.3
+chg_flash_pressure,1,bar,Section 3.3
+chg_cod_conversion,99.9,%,Section 3.3
+fd_feed_temperature,30,°C,Table 3.4
+fd_feed_pressure,1,bar,Table 3.4
+fd_heater_temperature,30,°C,Table 3.4
+fd_bottom_rate,70259.5,kg/h,Table 3.4
+fd_molar_reflux_ratio,1,,Table 3.4
+fd_theoretical_stages,6,,"Table 3.4 (text: 10 stages, feed at stage 6)"
+fd_feed_cod,650,mg/L,Section 3.4
+fd_bottoms_cod,<250,mg/L,Section 3.4
+fd_bottoms_water_purity,99.974,mol%,Section 3.4

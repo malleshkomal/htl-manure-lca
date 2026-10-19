@@ -1,0 +1,10 @@
+property,basis,cattle_manure_this_study,dairy_manure_ref104,swine_manure_ref105,unit
+C,daf,38.83,42.63,33.52,wt%
+H,daf,5.63,6.43,6.16,wt%
+O,daf,31.21,39.70,57.51,wt%
+N,daf,5.68,2.01,2.81,wt%
+S,daf,1.055,0.42,,wt%
+moisture,as received,78.76,,20,wt%
+fixed_carbon,dry,18.64,9.51,,wt%
+volatile_matter,dry,63.784,79.55,77.7,wt%
+ash,dry,17.57,10.94,22.3,wt%

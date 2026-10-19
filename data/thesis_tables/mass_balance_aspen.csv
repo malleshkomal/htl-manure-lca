@@ -1,0 +1,13 @@
+case,stream,direction,kg_per_h
+case1_base,manure,in,83333.33
+case1_base,water,in,5166.66
+case1_base,biocrude,out,4887.52
+case1_base,aqueous,out,70684.54408
+case1_base,solids,out,4373.91
+case1_base,gas,out,8554.01
+case2_htg,aqueous_to_treatment,in,70677.51
+case2_htg,organic_free_water,out,70013.04
+case2_htg,gas_volatiles,out,664.474
+case3_fd,aqueous_to_treatment,in,75572.07
+case3_fd,pure_water,out,70259.5
+case3_fd,gas_volatiles,out,425.0

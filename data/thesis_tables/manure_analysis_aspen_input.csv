@@ -1,0 +1,11 @@
+analysis,component,value,unit,note
+ULTANAL,ash,17.572,wt% dry,Table 3.1
+ULTANAL,C,38.831,wt% dry,Table 3.1
+ULTANAL,H,5.638,wt% dry,Table 3.1
+ULTANAL,N,5.68,wt% dry,Table 3.1
+ULTANAL,S,1.05,wt% dry,Table 3.1
+ULTANAL,O,31.215,wt% dry,"Table 3.1, by difference"
+PROXANAL,moisture,78.76,wt% as received,Table 3.1
+PROXANAL,fixed_carbon,18.643,wt% dry,Table 3.1
+PROXANAL,volatile_matter,63.784,wt% dry,Table 3.1
+PROXANAL,ash,17.572,wt% dry,Table 3.1
